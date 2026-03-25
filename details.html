@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Details | The Riviera</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* =====================================================
+           details.html — Personal Details + Final Bill
+           Step 3 of 4
+           ===================================================== */
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Montserrat', sans-serif; color: #444; background: #f5f5f5; }
+        a { text-decoration: none; color: inherit; }
+
+        /* NAVBAR */
+        .navbar { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; padding: 18px 5%; background: #000; color: #fff; z-index: 100; }
+        .logo { font-size: 1.4rem; font-weight: 700; letter-spacing: 3px; }
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links a { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #fff; opacity: 0.8; transition: opacity 0.3s; }
+        .nav-links a:hover { opacity: 1; }
+
+        /* PAGE HEADER */
+        .page-header { background: #111; color: #fff; padding: 50px 5%; text-align: center; }
+        .page-header h1 { font-size: 2.5rem; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 10px; }
+        .page-header p { font-size: 0.95rem; opacity: 0.6; letter-spacing: 1px; }
+
+        /* PROGRESS BAR */
+        .progress-bar { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 18px 5%; display: flex; align-items: center; }
+        .step { display: flex; align-items: center; gap: 10px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #bbb; white-space: nowrap; }
+        .step-num { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; color: #ccc; flex-shrink: 0; }
+        .step.active .step-num { background: #000; color: #fff; border-color: #000; }
+        .step.active { color: #000; }
+        .step.done .step-num { background: #555; color: #fff; border-color: #555; }
+        .step.done { color: #555; }
+        .step-line { flex: 1; height: 1px; background: #ddd; margin: 0 15px; }
+
+        /* MAIN LAYOUT */
+        .main-layout { display: flex; gap: 30px; padding: 40px 5%; max-width: 1400px; margin: 0 auto; align-items: flex-start; }
+
+        /* LEFT: FORM */
+        .form-column { flex: 2; min-width: 0; }
+        .section-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 3px; color: #999; margin-bottom: 5px; }
+        .section-title { font-size: 1.8rem; color: #000; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+        .section-subtitle { font-size: 0.9rem; color: #888; margin-bottom: 25px; }
+
+        .form-card { background: #fff; border: 1px solid #e5e5e5; padding: 35px 40px; margin-bottom: 20px; }
+
+        .form-section-heading { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 3px; color: #000; padding-bottom: 12px; border-bottom: 1px solid #eee; margin-bottom: 25px; }
+
+        .form-row { display: flex; gap: 20px; margin-bottom: 20px; }
+        .form-group { flex: 1; }
+        .form-group label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: #888; margin-bottom: 8px; }
+
+        /* All input fields and select dropdowns */
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: #333;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.2s;
+            border-radius: 0;
+        }
+        .form-group input:focus,
+        .form-group select:focus { border-color: #000; }
+
+        /* Red border when a field fails validation */
+        .form-group input.invalid,
+        .form-group select.invalid { border-color: #cc0000; }
+
+        /* Small red text below invalid fields */
+        .field-error {
+            font-size: 0.7rem;
+            color: #cc0000;
+            margin-top: 5px;
+            display: none; /* JS will set this to 'block' when invalid */
+        }
+
+        /* Radio button group */
+        .radio-group { display: flex; gap: 15px; flex-wrap: wrap; margin-top: 8px; }
+        .radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.88rem; color: #333; }
+        .radio-option input[type="radio"] { width: 16px; height: 16px; cursor: pointer; accent-color: #000; }
+
+        /* Red text for radio validation error */
+        .radio-error { font-size: 0.7rem; color: #cc0000; margin-top: 6px; display: none; }
+
+        /* Back button */
+        .back-btn { background: transparent; border: 1px solid #000; color: #000; padding: 12px 25px; font-family: inherit; font-size: 0.8rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.3s; margin-bottom: 20px; }
+        .back-btn:hover { background: #000; color: #fff; }
+
+        /* RIGHT: BILL */
+        .bill-column { flex: 1; position: sticky; top: 90px; }
+        .bill-box { background: #fff; border: 1px solid #e0e0e0; padding: 28px; }
+        .bill-box h3 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; color: #000; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid #f0f0f0; }
+        .bill-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 0.85rem; border-bottom: 1px solid #f8f8f8; }
+        .bill-row label { color: #666; }
+        .bill-row span { color: #000; font-weight: 600; }
+        .bill-row.small { font-size: 0.78rem; }
+        .bill-row.small label { color: #888; font-style: italic; padding-left: 10px; }
+        .bill-divider { border: none; border-top: 1px solid #e8e8e8; margin: 8px 0; }
+        .bill-total { margin-top: 16px; padding-top: 14px; border-top: 2px solid #000; display: flex; justify-content: space-between; align-items: center; }
+        .bill-total label { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: #000; }
+        .bill-total span { font-size: 1.4rem; font-weight: 700; color: #000; }
+        .bill-note { font-size: 0.72rem; color: #aaa; margin-top: 10px; line-height: 1.5; }
+
+        .proceed-btn { width: 100%; background: #000; color: #fff; border: none; padding: 15px; font-family: inherit; font-size: 0.88rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; margin-top: 18px; transition: background 0.3s; }
+        .proceed-btn:hover { background: #333; }
+
+        @media (max-width: 900px) {
+            .main-layout { flex-direction: column; }
+            .bill-column { position: static; }
+            .form-row { flex-direction: column; gap: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="logo">THE RIVIERA</div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#highlights">Experiences</a></li>
+                <li><a href="#">Dining</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <h1>Your Details</h1>
+        <p>A few personal details to complete your booking</p>
+    </div>
+
+    <!-- PROGRESS BAR: Steps 1 and 2 done, Step 3 active -->
+    <div class="progress-bar">
+        <div class="step done">
+            <div class="step-num">&#10003;</div><span>Select Room</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step done">
+            <div class="step-num">&#10003;</div><span>Amenities</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step active">
+            <div class="step-num">3</div><span>Your Details</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+            <div class="step-num">4</div><span>Confirmation</span>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-layout">
+
+        <!-- LEFT: FORM -->
+        <div class="form-column">
+            <p class="section-label">Step 3 of 4</p>
+            <h2 class="section-title">Personal Details</h2>
+            <p class="section-subtitle">All fields marked * are required.</p>
+
+            <button class="back-btn" onclick="window.location.href='amenities.html'">&#8592; Back to Amenities</button>
+
+            <!-- SECTION 1: Guest Info -->
+            <div class="form-card">
+                <p class="form-section-heading">Guest Information</p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name *</label>
+                        <input type="text" id="first-name" placeholder="e.g. Rahul">
+                        <!-- Error shown by JS when field is invalid -->
+                        <p class="field-error" id="err-first-name">Only letters allowed, minimum 2 characters.</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name *</label>
+                        <input type="text" id="last-name" placeholder="e.g. Sharma">
+                        <p class="field-error" id="err-last-name">Only letters allowed, minimum 2 characters.</p>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email Address *</label>
+                        <input type="text" id="email" placeholder="e.g. rahul@email.com">
+                        <p class="field-error" id="err-email">Must be a valid email with @ and a domain (e.g. .com).</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number *</label>
+                        <input type="text" id="phone" placeholder="e.g. 9876543210">
+                        <p class="field-error" id="err-phone">Must be exactly 10 digits, no spaces or dashes.</p>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nationality *</label>
+                        <!-- Blank first option forces user to make a choice -->
+                        <select id="nationality">
+                            <option value="">— Select Nationality —</option>
+                            <option value="Indian">Indian</option>
+                            <option value="American">American</option>
+                            <option value="British">British</option>
+                            <option value="Australian">Australian</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <p class="field-error" id="err-nationality">Please select your nationality.</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Date of Arrival</label>
+                        <!-- Read-only, filled by JS from sessionStorage -->
+                        <input type="text" id="arrival-display" readonly
+                               style="background:#f9f9f9; color:#888; cursor:not-allowed;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: Preferences -->
+            <div class="form-card">
+                <p class="form-section-heading">Stay Preferences</p>
+
+                <div class="form-row">
+                    <!-- Bed Preference — NO "checked" attribute = no default -->
+                    <div class="form-group">
+                        <label>Bed Preference *</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="bed" value="King"> King Bed
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="bed" value="Twin"> Twin Beds
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="bed" value="No Preference"> No Preference
+                            </label>
+                        </div>
+                        <!-- Error shown if user clicks Proceed without selecting -->
+                        <p class="radio-error" id="err-bed">Please select a bed preference.</p>
+                    </div>
+
+                    <!-- Floor Preference — NO "checked" attribute = no default -->
+                    <div class="form-group">
+                        <label>Room Floor *</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="floor" value="Lower"> Lower Floor
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="floor" value="Upper"> Upper Floor
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="floor" value="No Preference"> No Preference
+                            </label>
+                        </div>
+                        <p class="radio-error" id="err-floor">Please select a floor preference.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- end form-column -->
+
+        <!-- RIGHT: FINAL BILL (built by JS) -->
+        <div class="bill-column">
+            <div class="bill-box">
+                <h3>Final Bill</h3>
+
+                <div class="bill-row">
+                    <label>Villa</label>
+                    <span id="bill-room-name" style="font-size:0.78rem; text-align:right; max-width:60%;">—</span>
+                </div>
+                <div class="bill-row">
+                    <label>Nights</label>
+                    <span id="bill-nights">—</span>
+                </div>
+                <div class="bill-row">
+                    <label>Room Subtotal</label>
+                    <span id="bill-room-total">—</span>
+                </div>
+
+                <hr class="bill-divider">
+
+                <div class="bill-row">
+                    <label style="font-weight:600; color:#000;">Amenities</label>
+                </div>
+                <!-- Amenity line items inserted here by JS -->
+                <div id="bill-amenity-lines"></div>
+
+                <div class="bill-row">
+                    <label>Amenities Subtotal</label>
+                    <span id="bill-amenity-total">—</span>
+                </div>
+
+                <hr class="bill-divider">
+
+                <div class="bill-row">
+                    <label>Subtotal</label>
+                    <span id="bill-subtotal">—</span>
+                </div>
+                <div class="bill-row">
+                    <label>GST & Taxes (18%)</label>
+                    <span id="bill-tax">—</span>
+                </div>
+
+                <div class="bill-total">
+                    <label>Total</label>
+                    <span id="bill-grand-total">—</span>
+                </div>
+
+                <p class="bill-note">* In Indian Rupees (&#8377;). Payment on the next step.</p>
+
+                <button class="proceed-btn" onclick="goToPayment()">
+                    PROCEED TO PAYMENT &#8594;
+                </button>
+            </div>
+        </div>
+
+    </div><!-- end main-layout -->
+
+
+    <script>
+        // ============================================================
+        // details.html — JavaScript
+        //
+        // 1. Read booking data from sessionStorage
+        // 2. Pre-fill arrival date
+        // 3. Build the bill
+        // 4. Validate every field with regex before proceeding
+        // ============================================================
+
+        // ---- Read saved data ----
+        var checkInStr    = sessionStorage.getItem('checkIn');
+        var checkOutStr   = sessionStorage.getItem('checkOut');
+        var adults        = parseInt(sessionStorage.getItem('adults'))            || 2;
+        var children      = parseInt(sessionStorage.getItem('children'))          || 0;
+        var roomName      = sessionStorage.getItem('selectedRoomName')            || 'Villa';
+        var roomPrice     = parseInt(sessionStorage.getItem('selectedRoomPrice')) || 0;
+        var amenitiesJSON = sessionStorage.getItem('selectedAmenities');
+        var selectedAmenities = amenitiesJSON ? JSON.parse(amenitiesJSON) : {};
+
+        var checkIn  = checkInStr  ? new Date(checkInStr)  : null;
+        var checkOut = checkOutStr ? new Date(checkOutStr) : null;
+
+        var nights = 0;
+        if (checkIn && checkOut) nights = Math.round((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+        if (nights < 1) nights = 1;
+
+        function formatDate(date) {
+            if (!date) return 'Not set';
+            var m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            return date.getDate() + ' ' + m[date.getMonth()] + ' ' + date.getFullYear();
+        }
+
+        function formatPrice(num) {
+            return '&#8377;' + num.toLocaleString('en-IN');
+        }
+
+        // ---- Pre-fill arrival date ----
+        document.getElementById('arrival-display').value = formatDate(checkIn);
+
+        // ---- Build the bill ----
+        var roomSubtotal = roomPrice * nights;
+        var shortName    = roomName.length > 30 ? roomName.substring(0, 30) + '...' : roomName;
+
+        document.getElementById('bill-room-name').innerHTML  = shortName;
+        document.getElementById('bill-nights').innerHTML     = nights + (nights === 1 ? ' night' : ' nights');
+        document.getElementById('bill-room-total').innerHTML = formatPrice(roomSubtotal);
+
+        var amenityTotal = 0;
+        var amenityHTML  = '';
+        var amenityKeys  = Object.keys(selectedAmenities);
+
+        if (amenityKeys.length === 0) {
+            amenityHTML = '<div class="bill-row small"><label>None selected</label><span>&#8377;0</span></div>';
+        } else {
+            amenityKeys.forEach(function(id) {
+                var item = selectedAmenities[id];
+                amenityTotal += item.price;
+                amenityHTML += '<div class="bill-row small"><label>' + item.name + '</label><span>' + formatPrice(item.price) + '</span></div>';
+            });
+        }
+
+        document.getElementById('bill-amenity-lines').innerHTML  = amenityHTML;
+        document.getElementById('bill-amenity-total').innerHTML  = formatPrice(amenityTotal);
+
+        var grandSubtotal = roomSubtotal + amenityTotal;
+        var tax           = Math.round(grandSubtotal * 0.18);
+        var grandTotal    = grandSubtotal + tax;
+
+        document.getElementById('bill-subtotal').innerHTML    = formatPrice(grandSubtotal);
+        document.getElementById('bill-tax').innerHTML         = formatPrice(tax);
+        document.getElementById('bill-grand-total').innerHTML = formatPrice(grandTotal);
+
+
+        // ============================================================
+        // VALIDATION HELPERS
+        // showError(inputId, errorId) — marks field red and shows message
+        // clearError(inputId, errorId) — removes red border and hides message
+        // ============================================================
+
+        function showError(inputId, errorId) {
+            document.getElementById(inputId).classList.add('invalid');
+            document.getElementById(errorId).style.display = 'block';
+        }
+
+        function clearError(inputId, errorId) {
+            document.getElementById(inputId).classList.remove('invalid');
+            document.getElementById(errorId).style.display = 'none';
+        }
+
+
+        // ============================================================
+        // INDIVIDUAL VALIDATORS — each returns true (valid) or false
+        // ============================================================
+
+        // First Name: only letters and spaces, at least 2 chars
+        // Regex: ^[A-Za-z ]{2,}$
+        function validateFirstName() {
+            var val = document.getElementById('first-name').value.trim();
+            if (/^[A-Za-z ]{2,}$/.test(val)) {
+                clearError('first-name', 'err-first-name');
+                return true;
+            }
+            showError('first-name', 'err-first-name');
+            return false;
+        }
+
+        // Last Name: same rule
+        function validateLastName() {
+            var val = document.getElementById('last-name').value.trim();
+            if (/^[A-Za-z ]{2,}$/.test(val)) {
+                clearError('last-name', 'err-last-name');
+                return true;
+            }
+            showError('last-name', 'err-last-name');
+            return false;
+        }
+
+        // Email: characters + @ + characters + . + 2 or more characters
+        // Regex: ^[^\s@]+@[^\s@]+\.[^\s@]{2,}$
+        // [^\s@]+ means "one or more characters that are not a space or @"
+        function validateEmail() {
+            var val = document.getElementById('email').value.trim();
+            if (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val)) {
+                clearError('email', 'err-email');
+                return true;
+            }
+            showError('email', 'err-email');
+            return false;
+        }
+
+        // Phone: exactly 10 digits
+        // Regex: ^\d{10}$   (\d means any digit 0-9)
+        function validatePhone() {
+            var val = document.getElementById('phone').value.trim();
+            if (/^\d{10}$/.test(val)) {
+                clearError('phone', 'err-phone');
+                return true;
+            }
+            showError('phone', 'err-phone');
+            return false;
+        }
+
+        // Nationality: the dropdown value must not be blank
+        function validateNationality() {
+            var val = document.getElementById('nationality').value;
+            if (val !== '') {
+                clearError('nationality', 'err-nationality');
+                return true;
+            }
+            showError('nationality', 'err-nationality');
+            return false;
+        }
+
+        // Bed radio: at least one must be checked
+        // document.querySelector('input[name="bed"]:checked') returns null if none selected
+        function validateBed() {
+            if (document.querySelector('input[name="bed"]:checked')) {
+                document.getElementById('err-bed').style.display = 'none';
+                return true;
+            }
+            document.getElementById('err-bed').style.display = 'block';
+            return false;
+        }
+
+        // Floor radio: at least one must be checked
+        function validateFloor() {
+            if (document.querySelector('input[name="floor"]:checked')) {
+                document.getElementById('err-floor').style.display = 'none';
+                return true;
+            }
+            document.getElementById('err-floor').style.display = 'block';
+            return false;
+        }
+
+
+        // ---- Live validation: fire as user leaves each field ----
+        // "blur" fires when user clicks away from the field
+        document.getElementById('first-name').addEventListener('blur', validateFirstName);
+        document.getElementById('last-name').addEventListener('blur', validateLastName);
+        document.getElementById('email').addEventListener('blur', validateEmail);
+        document.getElementById('phone').addEventListener('blur', validatePhone);
+        document.getElementById('nationality').addEventListener('blur', validateNationality);
+
+
+        // ---- PROCEED: run all validators, only continue if all pass ----
+        function goToPayment() {
+            // Run every validator. Using separate if-statements (not &&) so that
+            // ALL errors appear at once, not just the first one found.
+            var allOk = true;
+            if (!validateFirstName())  allOk = false;
+            if (!validateLastName())   allOk = false;
+            if (!validateEmail())      allOk = false;
+            if (!validatePhone())      allOk = false;
+            if (!validateNationality()) allOk = false;
+            if (!validateBed())        allOk = false;
+            if (!validateFloor())      allOk = false;
+
+            if (!allOk) {
+                // Scroll to top so user can see the error messages
+                window.scrollTo({ top: 200, behavior: 'smooth' });
+                return; // stop here — do not go to next page
+            }
+
+            // All fields are valid — save to sessionStorage
+            sessionStorage.setItem('guestFirstName', document.getElementById('first-name').value.trim());
+            sessionStorage.setItem('guestLastName',  document.getElementById('last-name').value.trim());
+            sessionStorage.setItem('guestEmail',     document.getElementById('email').value.trim());
+            sessionStorage.setItem('guestPhone',     document.getElementById('phone').value.trim());
+            sessionStorage.setItem('guestNation',    document.getElementById('nationality').value);
+            sessionStorage.setItem('bedPref',        document.querySelector('input[name="bed"]:checked').value);
+            sessionStorage.setItem('floorPref',      document.querySelector('input[name="floor"]:checked').value);
+            sessionStorage.setItem('grandTotal',     grandTotal);
+
+            window.location.href = 'payment.html';
+        }
+
+    </script>
+
+</body>
+</html>

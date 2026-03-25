@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Riviera | Andaman Luxury Resort</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="navbar" id="navbar">
+        <div class="logo">
+            <img src="logo.png" alt="Riviera Logo" class="logo-img">
+            THE RIVIERA
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#highlights">Experiences</a></li>
+                <li><a href="#">Events</a></li>
+                <li><a href="#">Dining</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero-section">
+        <video autoplay muted loop playsinline class="hero-video">
+            <source src="video.mp4" type="video/mp4">
+        </video>
+
+        <div class="hero-overlay">
+            <h1>THE RIVIERA</h1>
+            <p>Where Luxury Meets the Sea.<br>Discover your private island sanctuary in Andaman.</p>
+        </div>
+
+        <div class="booking-bar">
+
+            <div class="booking-item date-item" id="date-toggle">
+                <label>CHECK IN — CHECK OUT</label>
+                <div class="booking-input">
+                    <span id="main-date-display">Select Dates</span>
+                    <span class="icon">&#8964;</span>
+                </div>
+
+                <div class="calendar-popup" id="calendar-popup">
+                    <div class="popup-header">
+                        <span class="nav-arrow" id="cal-prev">&#10094;</span>
+                        <span style="font-weight:700; letter-spacing:2px; color:#000;">SELECT YOUR DATES</span>
+                        <span class="nav-arrow" id="cal-next">&#10095;</span>
+                    </div>
+
+                    <div class="calendar-grid">
+                        <div class="month-card">
+                            <h4 class="month-name" id="month-1-name"></h4>
+                            <div class="weekdays"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+                            <div class="days" id="days-1"></div>
+                        </div>
+                        <div class="month-card">
+                            <h4 class="month-name" id="month-2-name"></h4>
+                            <div class="weekdays"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+                            <div class="days" id="days-2"></div>
+                        </div>
+                        <div class="month-card">
+                            <h4 class="month-name" id="month-3-name"></h4>
+                            <div class="weekdays"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+                            <div class="days" id="days-3"></div>
+                        </div>
+                    </div>
+
+                    <div class="popup-footer">
+                        <div class="legend">
+                            <span class="circle"></span> Selected &nbsp;&nbsp;
+                            <span class="circle" style="background:#f0f0f0; border:1px solid #ccc;"></span> In Range
+                        </div>
+                        <div class="footer-actions">
+                            <span id="popup-date-display" style="color:#333; font-style:italic;">Select check-in date</span>
+                            <button class="btn-dark" id="date-done-btn">DONE</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="booking-item guest-item" id="guest-toggle">
+                <label>GUESTS</label>
+                <div class="booking-input">
+                    <span id="main-guest-display">1 Room - 2 Adults</span>
+                    <span class="icon">&#8964;</span>
+                </div>
+
+                <div class="guest-popup" id="guest-popup">
+                    <div class="room-row">
+                        <h4>ROOM 1</h4>
+                        <div class="guest-counters">
+                            <div class="counter-group">
+                                <span>ADULTS (19+)</span>
+                                <div class="counter-controls">
+                                    <button id="adult-minus">−</button>
+                                    <span id="adult-count">2</span>
+                                    <button id="adult-plus">+</button>
+                                </div>
+                            </div>
+                            <div class="counter-group">
+                                <span>CHILDREN</span>
+                                <div class="counter-controls">
+                                    <button id="child-minus">−</button>
+                                    <span id="child-count">0</span>
+                                    <button id="child-plus">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="popup-footer" style="justify-content:flex-end; gap:20px;">
+                        <span id="popup-guest-summary">1 Room | 2 Adults, 0 Children</span>
+                        <button class="btn-dark" id="guest-update-btn">UPDATE</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="booking-item">
+                <label>PROMO</label>
+                <input type="text" class="promo-input" placeholder="Promo Code" id="promo-input">
+            </div>
+
+            <a href="#" class="search-btn" id="book-btn">BOOK A STAY</a>
+        </div>
+    </section>
+
+    <section class="section-pad about-us" id="about">
+        <div class="container-narrow text-center">
+            <h2 class="section-title black-text">Discover Barefoot Luxury</h2>
+            <p>Immerse yourself in the untouched beauty of the Andaman Islands. The Riviera offers an exclusive escape where pristine nature blends seamlessly with world-class comfort. Experience serenity redefined.</p>
+        </div>
+    </section>
+
+    <section class="section-pad highlights-section" id="highlights">
+        <div class="container text-center">
+            <h2 class="section-title black-text">Accommodations</h2>
+        </div>
+
+        <div class="carousel-viewport">
+            <div class="carousel-track" id="carousel-track">
+                <div class="carousel-card">
+                    <img src="https://images.unsplash.com/photo-1582610116397-edb318620f90?q=80&w=2070&auto=format&fit=crop" alt="Panoramic Villa">
+                    <div class="card-info">
+                        <h3>PANORAMIC OCEAN-VIEW POOL VILLA</h3>
+                        <p>Soak in panoramic views of the Andaman Sea from your private infinity pool.</p>
+                        <div class="card-buttons">
+                            <button class="btn-primary" onclick="goBook()">CHECK RATES</button>
+                            <button class="btn-secondary">DETAILS</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-card">
+                    <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=2070&auto=format&fit=crop" alt="Premier Villa">
+                    <div class="card-info">
+                        <h3>PREMIER OCEAN-VIEW POOL VILLA</h3>
+                        <p>Elevated luxury with expansive living areas and unparalleled sunset views.</p>
+                        <div class="card-buttons">
+                            <button class="btn-primary" onclick="goBook()">CHECK RATES</button>
+                            <button class="btn-secondary">DETAILS</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-card">
+                    <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=2049&auto=format&fit=crop" alt="Oceanfront Villa">
+                    <div class="card-info">
+                        <h3>OCEANFRONT POOL VILLA</h3>
+                        <p>Step directly onto the pristine white sands from your secluded sanctuary.</p>
+                        <div class="card-buttons">
+                            <button class="btn-primary" onclick="goBook()">CHECK RATES</button>
+                            <button class="btn-secondary">DETAILS</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-card">
+                    <img src="https://images.unsplash.com/photo-1544551763-46a420a94f65?q=80&w=2070&auto=format&fit=crop" alt="Beach Villa">
+                    <div class="card-info">
+                        <h3>BEACH VILLA WITH POOL</h3>
+                        <p>Lounge on the scenic deck of your private beachfront villa in the warm sea breeze.</p>
+                        <div class="card-buttons">
+                            <button class="btn-primary" onclick="goBook()">CHECK RATES</button>
+                            <button class="btn-secondary">DETAILS</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-card">
+                    <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=2070&auto=format&fit=crop" alt="Garden Villa">
+                    <div class="card-info">
+                        <h3>GARDEN POOL VILLA</h3>
+                        <p>Surrounded by lush tropical gardens, enjoy total seclusion in this serene retreat.</p>
+                        <div class="card-buttons">
+                            <button class="btn-primary" onclick="goBook()">CHECK RATES</button>
+                            <button class="btn-secondary">DETAILS</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="carousel-controls">
+            <button id="carousel-prev" class="nav-arrow">&#10094;</button>
+            <button id="carousel-next" class="nav-arrow">&#10095;</button>
+        </div>
+    </section>
+
+    <section class="review-section" id="reviews" style="background-image: url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=2070&auto=format&fit=crop');">
+        <div class="review-overlay">
+            <div class="container text-center">
+                <h2 class="section-title" style="color:white; margin-bottom:40px;">Guest Experiences</h2>
+                <div class="reviews-grid">
+                    <div class="review-card">
+                        <p class="review-quote">"The Riviera is not just a resort; it's a spiritual experience. The blend of luxury and raw nature is unparalleled."</p>
+                        <span class="reviewer-name">— Anjali Desai</span>
+                    </div>
+                    <div class="review-card">
+                        <p class="review-quote">"Absolute perfection. Waking up to the sound of the ocean in our private pool villa was a dream come true."</p>
+                        <span class="reviewer-name">— Marcus Sterling</span>
+                    </div>
+                    <div class="review-card">
+                        <p class="review-quote">"The staff anticipated our every need. The dining experiences were exquisite. A true 5-star island escape."</p>
+                        <span class="reviewer-name">— Priya & Rahul</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-pad faq-section" id="faq">
+        <div class="container-narrow">
+            <h2 class="section-title black-text text-center">Frequently Asked Questions</h2>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <button class="faq-question">How do we reach the private island? <span class="icon">+</span></button>
+                    <div class="faq-answer"><p>We provide complimentary luxury speedboat transfers from Port Blair airport directly to The Riviera's private dock. The journey takes approximately 45 minutes.</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">Are meals included in the stay? <span class="icon">+</span></button>
+                    <div class="faq-answer"><p>We offer various packages. Our base rate includes a gourmet breakfast. Our "Island Indulgence" package is fully all-inclusive covering all meals and select beverages.</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">Is the resort kid-friendly? <span class="icon">+</span></button>
+                    <div class="faq-answer"><p>Yes, we have a dedicated Kids Club, family villas, and babysitting services available upon request. Some areas like the primary infinity pool remain adult-only for tranquility.</p></div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">What activities are available on the island? <span class="icon">+</span></button>
+                    <div class="faq-answer"><p>We offer snorkelling, scuba diving, kayaking, sunset yacht cruises, ayurvedic spa, private beach bonfires, canvas painting, and much more. Our concierge can curate a full itinerary for you.</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-pad contact-section" id="contact">
+        <div class="container">
+            <h2 class="section-title black-text text-center">Contact Us</h2>
+            <div class="contact-wrapper">
+                <div class="contact-info">
+                    <h3>We'd love to hear from you.</h3>
+                    <p>Get in touch with our concierge team to start planning your perfect island getaway.</p>
+                    <div class="contact-details">
+                        <p><strong>Address:</strong><br>The Riviera Private Isle,<br>Andaman & Nicobar Islands, India 744101</p>
+                        <p><strong>Email:</strong><br>reservations@theriviera.in</p>
+                        <p><strong>Phone:</strong><br>+91 98765 43210</p>
+                    </div>
+                </div>
+                <div class="contact-image">
+                    <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=2070&auto=format&fit=crop" alt="Resort Reception">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-col logo-col">
+                <div class="logo" style="color:white;">THE RIVIERA</div>
+                <p style="margin-top:15px; opacity:0.6; font-size:0.85rem; max-width:200px; line-height:1.6;">Where Luxury Meets the Sea. Andaman Islands, India.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Menu</h4>
+                <ul>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#highlights">Experience</a></li>
+                    <li><a href="#">Villas</a></li>
+                    <li><a href="#reviews">Press</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Terms Of Use</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Connect</h4>
+                <ul>
+                    <li><a href="#contact">Contact Us</a></li>
+                    <li><a href="#">Instagram</a></li>
+                    <li><a href="#">Facebook</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom text-center">
+            <p>© 2026 The Riviera. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

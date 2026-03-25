@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Amenities | The Riviera</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* =====================================================
+           amenities.html — Choose your experiences
+           Same black & white luxury theme as the rest of the site
+           ===================================================== */
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: #444;
+            background: #f5f5f5;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            position: sticky;
+            top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 5%;
+            background: #000;
+            color: #fff;
+            z-index: 100;
+        }
+
+        .logo { font-size: 1.4rem; font-weight: 700; letter-spacing: 3px; }
+
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+
+        .nav-links a {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #fff;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover { opacity: 1; }
+
+        /* --- PAGE HEADER --- */
+        .page-header {
+            background: #111;
+            color: #fff;
+            padding: 50px 5%;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .page-header p { font-size: 0.95rem; opacity: 0.6; letter-spacing: 1px; }
+
+        /* --- PROGRESS BAR (shows which step user is on) --- */
+        .progress-bar {
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 18px 5%;
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #aaa;
+        }
+
+        /* The circle number for each step */
+        .step-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1.5px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #ccc;
+        }
+
+        /* Active step is black */
+        .step.active .step-num { background: #000; color: #fff; border-color: #000; }
+        .step.active { color: #000; }
+
+        /* Completed step gets a checkmark */
+        .step.done .step-num { background: #555; color: #fff; border-color: #555; }
+        .step.done { color: #555; }
+
+        /* Line between steps */
+        .step-line {
+            flex: 1;
+            height: 1px;
+            background: #ddd;
+            margin: 0 15px;
+        }
+
+        /* --- BOOKING SUMMARY BAR --- */
+        .booking-summary-bar {
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 16px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .summary-info { display: flex; gap: 35px; flex-wrap: wrap; }
+
+        .summary-item label {
+            display: block;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #999;
+            margin-bottom: 3px;
+        }
+
+        .summary-item span { font-size: 0.95rem; font-weight: 600; color: #000; }
+
+        .back-btn {
+            background: transparent;
+            border: 1px solid #000;
+            color: #000;
+            padding: 9px 22px;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover { background: #000; color: #fff; }
+
+        /* --- MAIN LAYOUT: amenities left, bill right --- */
+        .main-layout {
+            display: flex;
+            gap: 30px;
+            padding: 40px 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+            align-items: flex-start;
+        }
+
+        /* ===================== LEFT: AMENITY CARDS ===================== */
+        .amenities-column { flex: 2; min-width: 0; }
+
+        .section-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: #000;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .section-subtitle {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 30px;
+        }
+
+        /* --- Category heading inside the amenity list --- */
+        .category-heading {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #000;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            margin-top: 35px;
+        }
+
+        /* First category doesn't need top margin */
+        .category-heading:first-child { margin-top: 0; }
+
+        /* --- AMENITY CARD GRID --- */
+        /* 2 cards per row */
+        .amenity-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        /* Individual amenity card */
+        .amenity-card {
+            background: #fff;
+            border: 1.5px solid #e5e5e5;
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            position: relative; /* for the tick mark */
+        }
+
+        .amenity-card:hover { border-color: #aaa; box-shadow: 0 4px 15px rgba(0,0,0,0.07); }
+
+        /* When user clicks a card, it becomes "selected" — border turns black */
+        .amenity-card.selected {
+            border-color: #000;
+            background: #fafafa;
+        }
+
+        /* Tick mark in top-right corner, only visible when selected */
+        .amenity-card .tick {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 22px;
+            height: 22px;
+            background: #000;
+            border-radius: 50%;
+            display: none; /* hidden by default */
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 0.75rem;
+        }
+
+        .amenity-card.selected .tick { display: flex; } /* show tick when selected */
+
+        /* --- Amenity card is now vertical: photo on top, info below --- */
+        .amenity-card {
+            background: #fff;
+            border: 1.5px solid #e5e5e5;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            position: relative;
+            display: flex;
+            flex-direction: column; /* photo stacked above text */
+            overflow: hidden;
+        }
+
+        .amenity-card:hover { border-color: #aaa; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+        .amenity-card.selected { border-color: #000; }
+
+        .amenity-card .tick {
+            position: absolute;
+            top: 10px; right: 10px;
+            width: 26px; height: 26px;
+            background: #000;
+            border-radius: 50%;
+            display: none;
+            align-items: center; justify-content: center;
+            color: #fff; font-size: 0.8rem;
+            z-index: 2;
+        }
+
+        .amenity-card.selected .tick { display: flex; }
+
+        /* Photo area at top of card */
+        .amenity-photo {
+            width: 100%;
+            height: 140px;          /* fixed height, photo fills this box */
+            object-fit: cover;      /* crop to fill without stretching */
+            display: block;
+            background: #e8e8e8;   /* grey fallback if image fails to load */
+        }
+
+        /* Text area below photo */
+        .amenity-info {
+            padding: 15px 16px 16px;
+        }
+
+        .amenity-info h4 {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 5px;
+            letter-spacing: 0.3px;
+        }
+
+        .amenity-info p {
+            font-size: 0.76rem;
+            color: #777;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        /* Price shown at bottom of text area */
+        .amenity-price {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #000;
+        }
+
+        /* "per person" label next to price */
+        .amenity-price span {
+            font-size: 0.72rem;
+            font-weight: 400;
+            color: #999;
+        }
+
+        /* ===================== RIGHT: BILL SUMMARY ===================== */
+        .bill-column {
+            flex: 1;
+            position: sticky;
+            top: 90px; /* sticks while scrolling */
+        }
+
+        .bill-box {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            padding: 28px;
+        }
+
+        .bill-box h3 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #000;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .bill-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #f8f8f8;
+        }
+
+        .bill-row label { color: #666; }
+        .bill-row span  { color: #000; font-weight: 600; }
+
+        /* Amenity rows in bill (smaller, italic) */
+        .bill-row.amenity-line { font-size: 0.78rem; }
+        .bill-row.amenity-line label { color: #888; font-style: italic; }
+
+        .bill-divider {
+            border: none;
+            border-top: 1px solid #e8e8e8;
+            margin: 8px 0;
+        }
+
+        .bill-total {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 2px solid #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bill-total label {
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            color: #000;
+        }
+
+        .bill-total span { font-size: 1.4rem; font-weight: 700; color: #000; }
+
+        .bill-note { font-size: 0.72rem; color: #aaa; margin-top: 10px; line-height: 1.5; }
+
+        .proceed-btn {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 15px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 18px;
+            transition: background 0.3s;
+        }
+
+        .proceed-btn:hover { background: #333; }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 900px) {
+            .main-layout { flex-direction: column; }
+            .amenity-grid { grid-template-columns: 1fr; }
+            .bill-column { position: static; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="logo">THE RIVIERA</div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#highlights">Experiences</a></li>
+                <li><a href="#">Dining</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <h1>Curate Your Experience</h1>
+        <p>Add exclusive experiences to your stay</p>
+    </div>
+
+    <!-- STEP PROGRESS BAR -->
+    <div class="progress-bar">
+        <div class="step done">
+            <div class="step-num">&#10003;</div>
+            <span>Select Room</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step active">
+            <div class="step-num">2</div>
+            <span>Amenities</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <span>Your Details</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+            <div class="step-num">4</div>
+            <span>Confirmation</span>
+        </div>
+    </div>
+
+    <!-- BOOKING SUMMARY BAR (data from sessionStorage) -->
+    <div class="booking-summary-bar">
+        <div class="summary-info">
+            <div class="summary-item">
+                <label>Villa</label>
+                <span id="display-room">—</span>
+            </div>
+            <div class="summary-item">
+                <label>Check In</label>
+                <span id="display-checkin">—</span>
+            </div>
+            <div class="summary-item">
+                <label>Check Out</label>
+                <span id="display-checkout">—</span>
+            </div>
+            <div class="summary-item">
+                <label>Guests</label>
+                <span id="display-guests">—</span>
+            </div>
+        </div>
+        <button class="back-btn" onclick="window.location.href='book.html'">&#8592; Change Room</button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-layout">
+
+        <!-- LEFT: Amenity Categories & Cards -->
+        <div class="amenities-column">
+            <p class="section-label">Step 2 of 4</p>
+            <h2 class="section-title">Island Experiences</h2>
+            <p class="section-subtitle">Select as many as you like. All prices are per booking unless stated otherwise.</p>
+
+            <!-- We build all the cards here using JavaScript below -->
+            <div id="amenities-container"></div>
+        </div>
+
+        <!-- RIGHT: Live Bill -->
+        <div class="bill-column">
+            <div class="bill-box">
+                <h3>Your Stay Summary</h3>
+
+                <!-- Fixed room cost (always shown) -->
+                <div class="bill-row">
+                    <label>Villa</label>
+                    <span id="bill-room-name">—</span>
+                </div>
+                <div class="bill-row">
+                    <label>Room subtotal</label>
+                    <span id="bill-room-cost">—</span>
+                </div>
+
+                <hr class="bill-divider">
+
+                <!-- Amenity rows are added here dynamically by JS -->
+                <div id="bill-amenity-rows">
+                    <p style="font-size:0.78rem; color:#bbb; font-style:italic; padding:6px 0;">No amenities selected yet.</p>
+                </div>
+
+                <div class="bill-row" style="margin-top:8px;">
+                    <label>Amenities subtotal</label>
+                    <span id="bill-amenity-total">₹0</span>
+                </div>
+                <div class="bill-row">
+                    <label>Taxes & Fees (18%)</label>
+                    <span id="bill-tax">—</span>
+                </div>
+
+                <div class="bill-total">
+                    <label>Estimated Total</label>
+                    <span id="bill-grand-total">—</span>
+                </div>
+
+                <p class="bill-note">* Prices in Indian Rupees (₹). Final amount confirmed at checkout.</p>
+
+                <button class="proceed-btn" onclick="goToDetails()">
+                    PROCEED TO YOUR DETAILS &#8594;
+                </button>
+            </div>
+        </div>
+
+    </div><!-- end main-layout -->
+
+
+    <script>
+        // ============================================================
+        // amenities.html — JavaScript
+        //
+        // 1. Read booking data from sessionStorage (saved on previous pages)
+        // 2. Show it in the summary bar
+        // 3. Build amenity cards from our data list
+        // 4. When user clicks a card, toggle it selected/deselected
+        // 5. Update the bill live whenever selection changes
+        // ============================================================
+
+
+        // ---- STEP 1: Read all saved data from sessionStorage ----
+        var checkInStr   = sessionStorage.getItem('checkIn');
+        var checkOutStr  = sessionStorage.getItem('checkOut');
+        var adults       = parseInt(sessionStorage.getItem('adults'))       || 2;
+        var children     = parseInt(sessionStorage.getItem('children'))     || 0;
+        var roomName     = sessionStorage.getItem('selectedRoomName')       || 'Villa';
+        var roomPrice    = parseInt(sessionStorage.getItem('selectedRoomPrice')) || 0;
+
+        var checkIn  = checkInStr  ? new Date(checkInStr)  : null;
+        var checkOut = checkOutStr ? new Date(checkOutStr) : null;
+
+        // How many nights?
+        var nights = 0;
+        if (checkIn && checkOut) {
+            nights = Math.round((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+        }
+        if (nights < 1) nights = 1; // minimum 1 night
+
+        // Helper: format a date as "21 Mar 2026"
+        function formatDate(date) {
+            if (!date) return 'Not set';
+            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            return date.getDate() + ' ' + months[date.getMonth()] + ' ' + date.getFullYear();
+        }
+
+        // Helper: format number as Indian Rupees
+        function formatPrice(num) {
+            return '&#8377;' + num.toLocaleString('en-IN');
+        }
+
+
+        // ---- STEP 2: Fill the summary bar ----
+        // Shorten room name for display in the small bar
+        var shortRoomName = roomName.length > 28 ? roomName.substring(0, 28) + '...' : roomName;
+        document.getElementById('display-room').innerText     = shortRoomName;
+        document.getElementById('display-checkin').innerText  = formatDate(checkIn);
+        document.getElementById('display-checkout').innerText = formatDate(checkOut);
+
+        var guestText = adults + ' Adult' + (adults > 1 ? 's' : '');
+        if (children > 0) guestText += ', ' + children + ' Child' + (children > 1 ? 'ren' : '');
+        document.getElementById('display-guests').innerText = guestText;
+
+
+        // ---- Fill the bill's fixed room rows ----
+        var roomSubtotal = roomPrice * nights;
+        document.getElementById('bill-room-name').innerHTML  = shortRoomName;
+        document.getElementById('bill-room-cost').innerHTML  = formatPrice(roomSubtotal);
+
+
+        // ---- STEP 3: Amenity Data ----
+        // Each amenity now has a "photo" property — a URL to a relevant image.
+        // We use free Unsplash images. You can swap these URLs with your own photos.
+        // priceType: "flat" = one price for whole group, "per-person" = multiplied by adults
+
+        var categories = [
+            {
+                name: 'Beach & Water',
+                amenities: [
+                    {
+                        id: 'beach1',
+                        photo: 'https://images.unsplash.com/photo-1544551763-77ef2d0cfc6c?w=600&q=80',
+                        name: 'Snorkelling Experience',
+                        desc: 'Guided snorkelling in the coral reefs with all equipment provided.',
+                        price: 2500, priceType: 'per-person'
+                    },
+                    {
+                        id: 'beach2',
+                        photo: 'https://images.unsplash.com/photo-1506953823976-52e1fdc0149a?w=600&q=80',
+                        name: 'Kayaking Session',
+                        desc: 'Explore the island coastline at your own pace on a double kayak.',
+                        price: 1800, priceType: 'per-person'
+                    },
+                    {
+                        id: 'beach3',
+                        photo: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80',
+                        name: 'Private Beach Activities',
+                        desc: 'Full-day exclusive use of the private beach with attendant service.',
+                        price: 8000, priceType: 'flat'
+                    },
+                    {
+                        id: 'beach4',
+                        photo: 'https://images.unsplash.com/photo-1501426026826-31c667bdf23d?w=600&q=80',
+                        name: 'Sunset Yacht Cruise',
+                        desc: 'A 2-hour private sunset cruise on our luxury yacht with refreshments.',
+                        price: 15000, priceType: 'flat'
+                    },
+                    {
+                        id: 'beach5',
+                        photo: 'https://images.unsplash.com/photo-1569263979104-865ab7cd8d13?w=600&q=80',
+                        name: 'Dinner Cruise on Yacht',
+                        desc: 'A magical evening cruise with a private 4-course dinner on the water.',
+                        price: 22000, priceType: 'flat'
+                    }
+                ]
+            },
+            {
+                name: 'Dining & Bar',
+                amenities: [
+                    {
+                        id: 'dine1',
+                        photo: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80',
+                        name: 'Sunset Dinner on the Beach',
+                        desc: 'A romantic private dinner set on the sand as the sun goes down.',
+                        price: 12000, priceType: 'flat'
+                    },
+                    {
+                        id: 'dine2',
+                        photo: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=600&q=80',
+                        name: 'Private Floating Breakfast',
+                        desc: 'A beautifully arranged breakfast tray floating in your private pool.',
+                        price: 3500, priceType: 'flat'
+                    },
+                    {
+                        id: 'dine3',
+                        photo: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=600&q=80',
+                        name: 'Bar Access (All Day)',
+                        desc: 'Unlimited access to our curated island cocktail bar throughout your stay.',
+                        price: 4500, priceType: 'per-person'
+                    },
+                    {
+                        id: 'dine4',
+                        photo: 'https://images.unsplash.com/photo-1455218873509-8097305ee378?w=600&q=80',
+                        name: 'Private Bonfire Night',
+                        desc: 'A beachside bonfire for the evening with live music, snacks and drinks.',
+                        price: 6000, priceType: 'flat'
+                    }
+                ]
+            },
+            {
+                name: 'Wellness & Spa',
+                amenities: [
+                    {
+                        id: 'spa1',
+                        photo: 'https://images.unsplash.com/photo-1600334129128-685c5582fd35?w=600&q=80',
+                        name: 'Ayurvedic Spa Package',
+                        desc: 'A 90-minute traditional Ayurvedic massage and full treatment session.',
+                        price: 7500, priceType: 'per-person'
+                    },
+                    {
+                        id: 'spa2',
+                        photo: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=600&q=80',
+                        name: 'Couples Massage',
+                        desc: 'A relaxing 60-minute couples massage in our ocean-view suite.',
+                        price: 9000, priceType: 'flat'
+                    },
+                    {
+                        id: 'spa3',
+                        photo: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80',
+                        name: 'Personal Gym Session',
+                        desc: 'One-on-one personal training session with our certified island trainer.',
+                        price: 2000, priceType: 'per-person'
+                    },
+                    {
+                        id: 'spa4',
+                        photo: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600&q=80',
+                        name: 'Morning Yoga on the Beach',
+                        desc: 'A guided sunrise yoga session with breathtaking ocean views.',
+                        price: 1500, priceType: 'per-person'
+                    }
+                ]
+            },
+            {
+                name: 'Activities & Games',
+                amenities: [
+                    {
+                        id: 'game1',
+                        photo: 'https://images.unsplash.com/photo-1611891487122-207579d67d98?w=600&q=80',
+                        name: 'Pool Table & Games Room',
+                        desc: 'Access to pool table, foosball table, and table tennis for 3 hours.',
+                        price: 2000, priceType: 'flat'
+                    },
+                    {
+                        id: 'game2',
+                        photo: 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=600&q=80',
+                        name: 'Golf on the Island Course',
+                        desc: 'A round on our scenic 9-hole island golf course with a personal caddy.',
+                        price: 5000, priceType: 'per-person'
+                    },
+                    {
+                        id: 'game3',
+                        photo: 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=600&q=80',
+                        name: 'Canvas Painting Class',
+                        desc: 'A 2-hour guided painting session with all materials included.',
+                        price: 3000, priceType: 'per-person'
+                    },
+                    {
+                        id: 'game4',
+                        photo: 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&q=80',
+                        name: 'Pottery Workshop',
+                        desc: 'Create your own pottery piece guided by a master craftsman.',
+                        price: 2500, priceType: 'per-person'
+                    },
+                    {
+                        id: 'game5',
+                        photo: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&q=80',
+                        name: 'Private Movie Night',
+                        desc: 'Outdoor cinema under the stars with a blanket and fresh popcorn.',
+                        price: 5500, priceType: 'flat'
+                    }
+                ]
+            },
+            {
+                name: 'Services & Transfers',
+                amenities: [
+                    {
+                        id: 'svc1',
+                        photo: 'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=80',
+                        name: 'Airport Taxi Pickup',
+                        desc: 'Luxury car transfer from Port Blair airport directly to the jetty.',
+                        price: 3000, priceType: 'flat'
+                    },
+                    {
+                        id: 'svc2',
+                        photo: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80',
+                        name: 'Airport Taxi Drop',
+                        desc: 'Luxury car transfer from the jetty back to Port Blair airport.',
+                        price: 3000, priceType: 'flat'
+                    },
+                    {
+                        id: 'svc3',
+                        photo: 'https://images.unsplash.com/photo-1471556579061-dc9e2d3db61a?w=600&q=80',
+                        name: 'Kids Activity Club',
+                        desc: 'Full-day supervised activities, arts, crafts and games for children.',
+                        price: 2500, priceType: 'flat'
+                    }
+                ]
+            }
+        ];
+
+        // This object tracks which amenities the user has selected
+        // Key = amenity id, Value = { name, price }
+        var selectedAmenities = {};
+
+
+        // ---- STEP 4: Build and render all amenity cards ----
+        function renderAmenities() {
+            var container = document.getElementById('amenities-container');
+            container.innerHTML = ''; // Clear previous content
+
+            categories.forEach(function(category) {
+                // Category heading
+                var heading = document.createElement('p');
+                heading.className = 'category-heading';
+                heading.innerText = category.name;
+                container.appendChild(heading);
+
+                // 2-column grid for this category
+                var grid = document.createElement('div');
+                grid.className = 'amenity-grid';
+
+                category.amenities.forEach(function(amenity) {
+                    var isSelected = selectedAmenities[amenity.id] !== undefined;
+
+                    // If priceType is "per-person", multiply price by number of adults
+                    var actualPrice = amenity.priceType === 'per-person'
+                        ? amenity.price * adults
+                        : amenity.price;
+
+                    var card = document.createElement('div');
+                    card.className = 'amenity-card' + (isSelected ? ' selected' : '');
+
+                    // "per person" note shown next to price
+                    var priceLabel = amenity.priceType === 'per-person'
+                        ? ' <span>(' + formatPrice(amenity.price) + '/person)</span>'
+                        : '';
+
+                    card.innerHTML =
+                        // Tick in top-right corner (CSS shows it only when .selected)
+                        '<div class="tick">&#10003;</div>' +
+
+                        // --- PHOTO at the top ---
+                        // alt text describes the image for accessibility
+                        // onerror: if image fails to load, show a grey placeholder
+                        '<img class="amenity-photo"' +
+                            ' src="' + amenity.photo + '"' +
+                            ' alt="' + amenity.name + '"' +
+                            ' onerror="this.style.background=\'#ddd\'; this.style.minHeight=\'140px\';">' +
+
+                        // --- Text below photo ---
+                        '<div class="amenity-info">' +
+                            '<h4>' + amenity.name + '</h4>' +
+                            '<p>' + amenity.desc + '</p>' +
+                            '<div class="amenity-price">' + formatPrice(actualPrice) + priceLabel + '</div>' +
+                        '</div>';
+
+                    // Click toggles selection
+                    card.addEventListener('click', function() {
+                        toggleAmenity(amenity.id, amenity, actualPrice);
+                    });
+
+                    grid.appendChild(card);
+                });
+
+                container.appendChild(grid);
+            });
+        }
+
+        // ---- Toggle an amenity on or off ----
+        function toggleAmenity(id, amenity, price) {
+            if (selectedAmenities[id]) {
+                // Already selected → deselect it
+                delete selectedAmenities[id];
+            } else {
+                // Not selected → select it, store name and price
+                selectedAmenities[id] = { name: amenity.name, price: price };
+            }
+
+            // Re-render cards (to update tick marks)
+            renderAmenities();
+
+            // Re-render the bill
+            updateBill();
+        }
+
+        // ---- STEP 5: Update the bill on the right ----
+        function updateBill() {
+            var amenityTotal = 0;
+            var billRowsHTML = '';
+
+            // Count up all selected amenities
+            var keys = Object.keys(selectedAmenities);
+
+            if (keys.length === 0) {
+                // No amenities selected
+                billRowsHTML = '<p style="font-size:0.78rem; color:#bbb; font-style:italic; padding:6px 0;">No amenities selected yet.</p>';
+            } else {
+                keys.forEach(function(id) {
+                    var item = selectedAmenities[id];
+                    amenityTotal += item.price;
+                    // Add a row for each selected amenity
+                    billRowsHTML +=
+                        '<div class="bill-row amenity-line">' +
+                            '<label>' + item.name + '</label>' +
+                            '<span>' + formatPrice(item.price) + '</span>' +
+                        '</div>';
+                });
+            }
+
+            document.getElementById('bill-amenity-rows').innerHTML = billRowsHTML;
+            document.getElementById('bill-amenity-total').innerHTML = formatPrice(amenityTotal);
+
+            // Grand total = room subtotal + amenities + 18% tax on both
+            var grandSubtotal = roomSubtotal + amenityTotal;
+            var tax           = Math.round(grandSubtotal * 0.18);
+            var grandTotal    = grandSubtotal + tax;
+
+            document.getElementById('bill-tax').innerHTML        = formatPrice(tax);
+            document.getElementById('bill-grand-total').innerHTML = formatPrice(grandTotal);
+        }
+
+        // ---- PROCEED TO PERSONAL DETAILS ----
+        function goToDetails() {
+            // Save selected amenities as a JSON string in sessionStorage
+            // JSON.stringify turns the object into a piece of text we can save
+            sessionStorage.setItem('selectedAmenities', JSON.stringify(selectedAmenities));
+
+            window.location.href = 'details.html';
+        }
+
+        // ---- Run on page load ----
+        renderAmenities();
+        updateBill(); // Set initial bill totals
+
+    </script>
+
+</body>
+</html>
