@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | The Riviera</title>
+
+    <!-- Same font as the rest of the website -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================================
+           login.html — Admin Authentication Page
+           Same black & white luxury aesthetic as the rest of the site.
+
+           LAYOUT:
+           - Sticky black navbar at the top
+           - Two-column login panel below:
+               Left:  A beautiful resort image
+               Right: Login form (employee code + password)
+           - On SUCCESS: tables scroll into view below the login panel
+           - On FAILURE: "Credentials Invalid" shown below the form
+           ============================================================ */
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: #444;
+            background: #f5f5f5;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        /* ===================== NAVBAR ===================== */
+        .navbar {
+            position: sticky;
+            top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 5%;
+            background: #000;
+            color: #fff;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-img { height: 35px; width: auto; }
+
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+
+        .nav-links a {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #fff;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover { opacity: 1; }
+
+
+        /* ===================== PAGE HEADER ===================== */
+        .page-header {
+            background: #111;
+            color: #fff;
+            padding: 50px 5%;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            font-size: 0.95rem;
+            opacity: 0.6;
+            letter-spacing: 1px;
+        }
+
+
+        /* ===================== LOGIN PANEL =====================
+           Two equal columns: image on left, form on right.
+           Together they fill 90% of the page width, max 1200px.
+           =====================================================*/
+        .login-wrapper {
+            display: flex;
+            max-width: 1000px;
+            margin: 60px auto;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+        }
+
+        /* LEFT: Resort image fills the entire left half */
+        .login-image {
+            flex: 1;
+            min-height: 520px;
+            overflow: hidden;
+        }
+
+        .login-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* RIGHT: Login form */
+        .login-form-side {
+            flex: 1;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-form-side h2 {
+            font-size: 1.6rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #000;
+            margin-bottom: 8px;
+        }
+
+        .login-form-side p.subtitle {
+            font-size: 0.85rem;
+            color: #999;
+            margin-bottom: 40px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Form field label */
+        .field-label {
+            display: block;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #888;
+            margin-bottom: 8px;
+            margin-top: 20px;
+        }
+
+        /* First label has no top margin */
+        .field-label:first-of-type { margin-top: 0; }
+
+        /* Input fields */
+        .login-input {
+            width: 100%;
+            border: 1px solid #ddd;
+            padding: 13px 15px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            color: #333;
+            background: #fff;
+            outline: none;
+            transition: border-color 0.25s;
+            border-radius: 0;
+        }
+
+        .login-input:focus { border-color: #000; }
+
+        /* Red border when validation fails */
+        .login-input.invalid { border-color: #cc0000; }
+
+        /* LOGIN button */
+        .login-btn {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 15px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: background 0.3s;
+        }
+
+        .login-btn:hover { background: #333; }
+        .login-btn:disabled { background: #888; cursor: not-allowed; }
+
+        /* ---- Status messages below the button ---- */
+
+        /* Green: Authentication Successful */
+        .msg-success {
+            margin-top: 20px;
+            padding: 14px 16px;
+            background: #f0faf0;
+            border: 1px solid #4caf50;
+            color: #2e7d32;
+            font-size: 0.88rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-align: center;
+            display: none;  /* shown by JS */
+        }
+
+        /* Red: Credentials Invalid */
+        .msg-error {
+            margin-top: 20px;
+            padding: 14px 16px;
+            background: #fff0f0;
+            border: 1px solid #cc0000;
+            color: #cc0000;
+            font-size: 0.88rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-align: center;
+            display: none;  /* shown by JS */
+        }
+
+        /* Small validation hints below fields */
+        .field-hint {
+            font-size: 0.7rem;
+            color: #cc0000;
+            margin-top: 5px;
+            display: none;  /* shown by JS if field is empty on submit */
+        }
+
+
+        /* ===================== DATABASE TABLES SECTION =====================
+           Hidden until login succeeds.
+           Shows 3 tables: Reservations, Guests, Villas.
+           ================================================================== */
+        .db-section {
+            padding: 60px 5% 80px;
+            display: none;  /* shown by JS after successful login */
+        }
+
+        .db-section-title {
+            font-size: 2rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #000;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .db-section-subtitle {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #999;
+            margin-bottom: 50px;
+            letter-spacing: 1px;
+        }
+
+        /* Each table block (label + table) */
+        .table-block {
+            margin-bottom: 50px;
+        }
+
+        /* Table heading like "RESERVATIONS (3 rows)" */
+        .table-heading {
+            font-size: 0.75rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #000;
+            font-weight: 700;
+            border-bottom: 2px solid #000;
+            padding-bottom: 12px;
+            margin-bottom: 0;
+        }
+
+        /* Scrollable container so wide tables don't break layout */
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        /* The actual HTML table */
+        .db-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.83rem;
+            min-width: 500px;  /* forces scroll on narrow screens */
+        }
+
+        /* Header row */
+        .db-table thead tr {
+            background: #000;
+            color: #fff;
+        }
+
+        .db-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            letter-spacing: 1px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* Data rows */
+        .db-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #333;
+            white-space: nowrap;
+        }
+
+        /* Alternating row colour for readability */
+        .db-table tbody tr:nth-child(even) td {
+            background: #f9f9f9;
+        }
+
+        .db-table tbody tr:hover td {
+            background: #f0f0f0;
+        }
+
+        /* "No records yet" message inside a table */
+        .empty-row td {
+            text-align: center;
+            color: #aaa;
+            font-style: italic;
+            padding: 24px;
+        }
+
+
+        /* ===================== FOOTER ===================== */
+        .footer {
+            background: #000;
+            color: #fff;
+            padding: 80px 0 20px;
+        }
+
+        .footer-grid {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .footer-col h4 {
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 15px; }
+        .footer-col ul li a { opacity: 0.7; transition: opacity 0.3s; }
+        .footer-col ul li a:hover { opacity: 1; }
+
+        .footer-bottom {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            font-size: 0.85rem;
+            opacity: 0.6;
+            text-align: center;
+        }
+
+
+        /* ===================== RESPONSIVE ===================== */
+        @media (max-width: 768px) {
+            .login-wrapper  { flex-direction: column; margin: 30px 5%; }
+            .login-image    { min-height: 220px; }
+            .login-form-side { padding: 40px 30px; }
+            .footer-grid    { grid-template-columns: 1fr 1fr; }
+            .nav-links      { display: none; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- ===================== NAVBAR ===================== -->
+    <header class="navbar">
+        <div class="logo">
+            <img src="logo.png" alt="Riviera Logo" class="logo-img">
+            THE RIVIERA
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="events.html">Events</a></li>
+                <li><a href="dining.html">Dining</a></li>
+                <li><a href="sustainability.html">Sustainability</a></li>
+                <li><a href="login.html" style="opacity:1;">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+
+    <!-- ===================== PAGE HEADER ===================== -->
+    <div class="page-header">
+        <h1>Admin Portal</h1>
+        <p>Restricted access — authorised personnel only</p>
+    </div>
+
+
+    <!-- ===================== LOGIN PANEL ===================== -->
+    <div class="login-wrapper">
+
+        <!-- LEFT: Resort photograph -->
+        <div class="login-image">
+            <img src="https://images.unsplash.com/photo-1582610116397-edb318620f90?q=80&w=2070&auto=format&fit=crop"
+                 alt="The Riviera — Private Island Resort, Andaman">
+        </div>
+
+        <!-- RIGHT: Form -->
+        <div class="login-form-side">
+
+            <h2>Staff Login</h2>
+            <p class="subtitle">Enter your employee credentials to access the dashboard.</p>
+
+            <!-- Employee Code field -->
+            <label class="field-label" for="employee-code">Employee Code</label>
+            <input
+                type="text"
+                id="employee-code"
+                class="login-input"
+                placeholder="e.g. RVRM001"
+                maxlength="20"
+                autocomplete="username">
+            <p class="field-hint" id="hint-code">Please enter your employee code.</p>
+
+            <!-- Password field -->
+            <label class="field-label" for="password">Password</label>
+            <input
+                type="password"
+                id="password"
+                class="login-input"
+                placeholder="Enter your password"
+                autocomplete="current-password">
+            <p class="field-hint" id="hint-pass">Please enter your password.</p>
+
+            <!-- Login button -->
+            <button class="login-btn" id="login-btn" onclick="doLogin()">
+                LOGIN
+            </button>
+
+            <!-- Success / Error messages — shown by JS -->
+            <div class="msg-success" id="msg-success">&#10003; Authentication Successful — Loading database...</div>
+            <div class="msg-error"   id="msg-error">&#10007; Credentials Invalid</div>
+
+        </div><!-- end login-form-side -->
+
+    </div><!-- end login-wrapper -->
+
+
+    <!-- ===================== DATABASE TABLES SECTION =====================
+         This section is hidden by default (display:none in CSS).
+         After a successful login, JS:
+         1. Fills in each table with the data returned by admin_login.php
+         2. Sets this section to display:block
+         3. Scrolls down to it automatically
+         ================================================================== -->
+    <div class="db-section" id="db-section">
+
+        <h2 class="db-section-title">Database Dashboard</h2>
+        <p class="db-section-subtitle">Live data from riviera_db — all tables shown below</p>
+
+        <!-- TABLE 1: RESERVATIONS -->
+        <div class="table-block">
+            <p class="table-heading" id="res-heading">Reservations</p>
+            <div class="table-scroll">
+                <table class="db-table">
+                    <thead>
+                        <tr>
+                            <th>Res. ID</th>
+                            <th>Guest Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Villa</th>
+                            <th>Check-In</th>
+                            <th>Check-Out</th>
+                            <th>Adults</th>
+                            <th>Children</th>
+                            <th>Total (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="res-tbody">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TABLE 2: GUESTS -->
+        <div class="table-block">
+            <p class="table-heading" id="guest-heading">Guests</p>
+            <div class="table-scroll">
+                <table class="db-table">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                        </tr>
+                    </thead>
+                    <tbody id="guest-tbody">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TABLE 3: VILLAS -->
+        <div class="table-block">
+            <p class="table-heading" id="villa-heading">Villas</p>
+            <div class="table-scroll">
+                <table class="db-table">
+                    <thead>
+                        <tr>
+                            <th>Villa ID</th>
+                            <th>Villa Name</th>
+                            <th>Base Price (₹)</th>
+                            <th>Total Units</th>
+                            <th>Max Adults</th>
+                            <th>Max Children</th>
+                        </tr>
+                    </thead>
+                    <tbody id="villa-tbody">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div><!-- end db-section -->
+
+
+    <!-- ===================== FOOTER ===================== -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <div class="logo" style="color:white;">THE RIVIERA</div>
+                <p style="margin-top:15px; opacity:0.6; font-size:0.85rem; max-width:200px; line-height:1.6;">
+                    Where Luxury Meets the Sea. Andaman Islands, India.
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>Menu</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="events.html">Events</a></li>
+                    <li><a href="dining.html">Dining</a></li>
+                    <li><a href="sustainability.html">Sustainability</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Terms Of Use</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Connect</h4>
+                <ul>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Instagram</a></li>
+                    <li><a href="#">Facebook</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 The Riviera Private Isle. All rights reserved.</p>
+        </div>
+    </footer>
+
+
+    <script>
+        // ============================================================
+        // login.html — JavaScript
+        //
+        // doLogin() FLOW:
+        //   1. Read employee_code and password from the inputs
+        //   2. Basic front-end validation (fields must not be empty)
+        //   3. POST to admin_login.php via fetch()
+        //   4. PHP checks credentials against the Admin table:
+        //        - Match:    returns success + all table data
+        //        - No match: returns { success: false, message: "Credentials Invalid" }
+        //   5. If success:
+        //        - Show "Authentication Successful" message
+        //        - Fill in the 3 database tables
+        //        - Make the db-section visible
+        //        - Auto-scroll down to the tables
+        //   6. If failure:
+        //        - Show "Credentials Invalid" message
+        // ============================================================
+
+        function doLogin() {
+            // ---- Step 1: Read inputs ----
+            var codeInput = document.getElementById('employee-code');
+            var passInput = document.getElementById('password');
+
+            var employeeCode = codeInput.value.trim();
+            var password     = passInput.value.trim();
+
+            // ---- Step 2: Front-end validation — fields must not be empty ----
+            var valid = true;
+
+            // Reset any previous error state
+            codeInput.classList.remove('invalid');
+            passInput.classList.remove('invalid');
+            document.getElementById('hint-code').style.display = 'none';
+            document.getElementById('hint-pass').style.display = 'none';
+
+            if (!employeeCode) {
+                codeInput.classList.add('invalid');
+                document.getElementById('hint-code').style.display = 'block';
+                valid = false;
+            }
+
+            if (!password) {
+                passInput.classList.add('invalid');
+                document.getElementById('hint-pass').style.display = 'block';
+                valid = false;
+            }
+
+            if (!valid) return; // Stop here if either field is empty
+
+            // ---- Step 3: Disable button and hide previous messages ----
+            var btn = document.getElementById('login-btn');
+            btn.disabled    = true;
+            btn.textContent = 'VERIFYING...';
+
+            document.getElementById('msg-success').style.display = 'none';
+            document.getElementById('msg-error').style.display   = 'none';
+
+            // ---- Step 4: POST credentials to admin_login.php ----
+            fetch('admin_login.php', {
+                method:  'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body:    JSON.stringify({
+                    employee_code: employeeCode,
+                    password:      password
+                })
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(data) {
+
+                // Re-enable the button in all cases
+                btn.disabled    = false;
+                btn.textContent = 'LOGIN';
+
+                if (data.success) {
+                    // ---- SUCCESS PATH ----
+
+                    // Show the green success message
+                    document.getElementById('msg-success').style.display = 'block';
+
+                    // Fill in all 3 database tables using the data PHP sent back
+                    populateReservations(data.reservations);
+                    populateGuests(data.guests);
+                    populateVillas(data.villas);
+
+                    // Make the tables section visible
+                    document.getElementById('db-section').style.display = 'block';
+
+                    // Auto-scroll down to the tables after a short delay
+                    // (delay gives the browser time to render the section first)
+                    setTimeout(function() {
+                        document.getElementById('db-section').scrollIntoView({
+                            behavior: 'smooth',
+                            block:    'start'
+                        });
+                    }, 400);
+
+                } else {
+                    // ---- FAILURE PATH ----
+                    // Show the red error message
+                    document.getElementById('msg-error').style.display = 'block';
+
+                    // Shake the input fields for visual feedback
+                    codeInput.classList.add('invalid');
+                    passInput.classList.add('invalid');
+                }
+            })
+            .catch(function(err) {
+                // Network error (server not running, wrong URL, etc.)
+                btn.disabled    = false;
+                btn.textContent = 'LOGIN';
+
+                var errorBox = document.getElementById('msg-error');
+                errorBox.textContent   = '⚠ Connection error. Is XAMPP running?';
+                errorBox.style.display = 'block';
+
+                console.error('Login fetch error:', err);
+            });
+
+        }   // end doLogin()
+
+
+        // ============================================================
+        // populateReservations(data) — Fills the reservations table
+        //
+        // data is an array of objects from PHP:
+        // [{ reservation_id, guest_name, guest_email, phone_number,
+        //    villa_name, check_in, check_out, adults_count,
+        //    children_count, total_cost }, ...]
+        // ============================================================
+        function populateReservations(reservations) {
+            var tbody   = document.getElementById('res-tbody');
+            var heading = document.getElementById('res-heading');
+
+            // Update the heading to show row count
+            heading.textContent = 'Reservations (' + reservations.length + ' record' + (reservations.length !== 1 ? 's' : '') + ')';
+
+            if (reservations.length === 0) {
+                // No bookings yet — show a friendly empty message
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="10">No reservations yet.</td></tr>';
+                return;
+            }
+
+            // Build a <tr> for each reservation
+            var html = '';
+            reservations.forEach(function(r) {
+                // Format the total as Indian Rupees
+                var total = '₹' + parseFloat(r.total_cost).toLocaleString('en-IN');
+
+                html += '<tr>' +
+                    '<td>' + r.reservation_id + '</td>' +
+                    '<td>' + r.guest_name     + '</td>' +
+                    '<td>' + r.guest_email    + '</td>' +
+                    '<td>' + r.phone_number   + '</td>' +
+                    '<td>' + r.villa_name     + '</td>' +
+                    '<td>' + r.check_in       + '</td>' +
+                    '<td>' + r.check_out      + '</td>' +
+                    '<td>' + r.adults_count   + '</td>' +
+                    '<td>' + r.children_count + '</td>' +
+                    '<td>' + total            + '</td>' +
+                '</tr>';
+            });
+
+            tbody.innerHTML = html;
+        }
+
+
+        // ============================================================
+        // populateGuests(data) — Fills the guests table
+        // ============================================================
+        function populateGuests(guests) {
+            var tbody   = document.getElementById('guest-tbody');
+            var heading = document.getElementById('guest-heading');
+
+            heading.textContent = 'Guests (' + guests.length + ' record' + (guests.length !== 1 ? 's' : '') + ')';
+
+            if (guests.length === 0) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No guests yet.</td></tr>';
+                return;
+            }
+
+            var html = '';
+            guests.forEach(function(g) {
+                html += '<tr>' +
+                    '<td>' + g.user_id      + '</td>' +
+                    '<td>' + g.first_name   + '</td>' +
+                    '<td>' + g.last_name    + '</td>' +
+                    '<td>' + g.email        + '</td>' +
+                    '<td>' + g.phone_number + '</td>' +
+                '</tr>';
+            });
+
+            tbody.innerHTML = html;
+        }
+
+
+        // ============================================================
+        // populateVillas(data) — Fills the villas table
+        // ============================================================
+        function populateVillas(villas) {
+            var tbody   = document.getElementById('villa-tbody');
+            var heading = document.getElementById('villa-heading');
+
+            heading.textContent = 'Villas (' + villas.length + ' record' + (villas.length !== 1 ? 's' : '') + ')';
+
+            if (villas.length === 0) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No villas found.</td></tr>';
+                return;
+            }
+
+            var html = '';
+            villas.forEach(function(v) {
+                // Format price with comma separator
+                var price = '₹' + parseFloat(v.base_price).toLocaleString('en-IN');
+
+                html += '<tr>' +
+                    '<td>' + v.villa_id     + '</td>' +
+                    '<td>' + v.villa_name   + '</td>' +
+                    '<td>' + price          + '</td>' +
+                    '<td>' + v.total_units  + '</td>' +
+                    '<td>' + v.max_adults   + '</td>' +
+                    '<td>' + v.max_children + '</td>' +
+                '</tr>';
+            });
+
+            tbody.innerHTML = html;
+        }
+
+
+        // Allow pressing Enter key in either field to trigger login
+        document.getElementById('employee-code').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') doLogin();
+        });
+
+        document.getElementById('password').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') doLogin();
+        });
+
+    </script>
+
+</body>
+</html>

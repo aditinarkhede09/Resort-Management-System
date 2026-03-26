@@ -462,6 +462,16 @@
             padding: 20px 0;
         }
 
+        /* Loading spinner message while fetching from DB */
+        .loading-msg {
+            text-align: center;
+            color: #888;
+            font-size: 0.9rem;
+            font-style: italic;
+            padding: 40px 0;
+            letter-spacing: 1px;
+        }
+
         /* --- RESPONSIVE: stack columns on small screens --- */
         @media (max-width: 900px) {
             .main-layout { flex-direction: column; }
@@ -556,8 +566,10 @@
             <p class="section-label">Step 1 of 3</p>
             <h2 class="section-title">Available Villas</h2>
 
-            <!-- We will generate room cards here with JavaScript -->
-            <div id="rooms-container"></div>
+            <!-- Room cards appear here. We show a loading message first. -->
+            <div id="rooms-container">
+                <p class="loading-msg">Loading availability from the database...</p>
+            </div>
         </div>
 
         <!-- RIGHT: Bill Summary -->
@@ -617,16 +629,24 @@
         // ============================================================
         // book.html — JavaScript
         //
-        // 1. Read saved booking data from sessionStorage
-        // 2. Display it in the summary bar
-        // 3. Show room cards (some marked "fully booked" based on dates)
-        // 4. When user picks a room, update the bill dynamically
+        // WHAT CHANGED FROM THE ORIGINAL:
+        //   - The hardcoded "bookedDates" arrays have been REMOVED.
+        //   - Availability is now fetched LIVE from the database via
+        //     get_availability.php (a PHP file on our server).
+        //   - Prices also come from the database (base_price column).
+        //   - Everything else (room names, images, descriptions) is still
+        //     defined here in JS since it's purely presentational.
+        //
+        // FLOW:
+        //   1. Read dates/guests from sessionStorage (set on index.html)
+        //   2. Show the date/guest summary bar
+        //   3. Call loadAvailability() → fetches from get_availability.php
+        //   4. Update each room's .available and .pricePerNight from DB data
+        //   5. Render all room cards with correct availability status
         // ============================================================
 
-        // ---- STEP 1: Read data from sessionStorage ----
-        // sessionStorage saves data temporarily (only for this browser tab)
-        // We saved it in script.js when the user clicked BOOK A STAY
 
+        // ---- STEP 1: Read data from sessionStorage ----
         var checkInStr  = sessionStorage.getItem('checkIn');
         var checkOutStr = sessionStorage.getItem('checkOut');
         var adults      = parseInt(sessionStorage.getItem('adults'))   || 2;
@@ -649,9 +669,15 @@
             return date.getDate() + ' ' + months[date.getMonth()] + ' ' + date.getFullYear();
         }
 
-        // ---- STEP 2: Show data in the summary bar ----
-        document.getElementById('display-checkin').innerText  = formatDate(checkIn)  || 'Not selected';
-        document.getElementById('display-checkout').innerText = formatDate(checkOut) || 'Not selected';
+        // Helper: format a number as Indian Rupees
+        function formatPrice(num) {
+            return '₹' + num.toLocaleString('en-IN');
+        }
+
+
+        // ---- STEP 2: Show dates and guests in the summary bar ----
+        document.getElementById('display-checkin').innerText  = formatDate(checkIn);
+        document.getElementById('display-checkout').innerText = formatDate(checkOut);
         document.getElementById('display-nights').innerText   = nights > 0 ? nights + ' nights' : '—';
 
         var guestText = adults + ' Adult' + (adults > 1 ? 's' : '');
@@ -660,40 +686,37 @@
 
 
         // ---- STEP 3: Room Data ----
-        // These are the 5 rooms with their details
-        // "bookedDates" is an array of date ranges when the room is unavailable
-        // If the user's chosen dates overlap with a booked range, we mark it "fully booked"
+        //
+        // These are the 5 rooms with their VISUAL details (name, image, description, etc.)
+        // "available" and "pricePerNight" start as defaults.
+        // They get OVERRIDDEN with real data from the database in loadAvailability().
+        //
+        // NOTE: bookedDates arrays have been REMOVED — availability now comes from the DB.
 
         var rooms = [
             {
                 id: 1,
                 name: 'Panoramic Ocean-View Pool Villa',
                 image: 'https://images.unsplash.com/photo-1582610116397-edb318620f90?q=80&w=2070&auto=format&fit=crop',
-                pricePerNight: 45000,
+                pricePerNight: 45000,  // will be updated from DB
                 description: 'Spectacular views from an elevated private pool. Ideal for couples or honeymooners.',
-                // These 3 show as icon+text lines (like the reference image)
-                beds: 'One king bed',
-                size: '95 m² (1,022 sq.ft.)',
-                guests: '2 adults, 1 child',
-                // Amenities are extra highlights — do NOT repeat beds/size/guests here
+                beds:    'One king bed',
+                size:    '95 m² (1,022 sq.ft.)',
+                guests:  '2 adults, 1 child',
                 amenities: ['Private Infinity Pool', 'Butler Service', 'Floating Breakfast', 'Outdoor Rain Shower', 'Mini Bar', 'Ocean Terrace'],
-                bookedDates: [
-                    { from: new Date(2026, 3, 5), to: new Date(2026, 3, 12) }
-                ]
+                available: true   // will be updated from DB
             },
             {
                 id: 2,
                 name: 'Premier Ocean-View Pool Villa',
-                image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=2070&auto=format&fit=crop',
+                image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=2070&auto=format&fit=crop',
                 pricePerNight: 38000,
                 description: 'Expansive living spaces with breathtaking sunset views. Perfect for a family.',
-                beds: 'One king bed, one rollaway available',
-                size: '110 m² (1,184 sq.ft.)',
-                guests: '2 adults, 2 child',
+                beds:    'One king bed, one rollaway available',
+                size:    '110 m² (1,184 sq.ft.)',
+                guests:  '2 adults, 2 children',
                 amenities: ['Private Pool', 'Sunset Deck', 'Living Room', 'Kitchenette', 'Garden View', 'Daily Housekeeping'],
-                bookedDates: [
-                    { from: new Date(2026, 4, 1), to: new Date(2026, 4, 10) }
-                ]
+                available: true
             },
             {
                 id: 3,
@@ -701,72 +724,57 @@
                 image: 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=2049&auto=format&fit=crop',
                 pricePerNight: 55000,
                 description: 'Step directly onto the private beach from your villa. The ultimate barefoot luxury.',
-                beds: 'One king bed',
-                size: '130 m² (1,399 sq.ft.)',
-                guests: '2 adults, 1 child',
+                beds:    'One king bed',
+                size:    '130 m² (1,399 sq.ft.)',
+                guests:  '2 adults, 1 child',
                 amenities: ['Direct Beach Access', 'Hammock', 'Floating Breakfast', 'Butler Service', 'Outdoor Dining Area', 'Sun Loungers'],
-                bookedDates: []
+                available: true
             },
             {
                 id: 4,
                 name: 'Family Pool Villa',
-                image: 'https://images.unsplash.com/photo-1544551763-46a420a94f65?q=80&w=2070&auto=format&fit=crop',
+                image: 'https://west.rawayanabeachfront.com/images/19-scaled.jpg',
                 pricePerNight: 30000,
                 description: 'Spacious family retreat with a scenic deck overlooking the turquoise Andaman waters.',
-                beds: 'One king bed and two twin beds, one rollaway or one crib',
-                size: '118 m² (1,273 sq.ft.)',
-                guests: '3 adults and 2 children',
+                beds:    'One king bed and two twin beds',
+                size:    '118 m² (1,273 sq.ft.)',
+                guests:  '3 adults and 2 children',
                 amenities: ['Beach View', 'Kids Welcome Kit', 'Deck with Sunbeds', 'Open-air Bathroom', 'Minibar', 'Room Service'],
-                bookedDates: [
-                    { from: new Date(2026, 2, 25), to: new Date(2026, 3, 2) }
-                ]
+                available: true
             },
             {
                 id: 5,
                 name: 'Garden Pool Villa',
-                image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=2070&auto=format&fit=crop',
+                image: 'https://amianaresort.com/wp-content/uploads/2024/06/AmianaNhaTrang_Ocean-Deluxe-Twin-05.jpg',
                 pricePerNight: 25000,
                 description: 'Surrounded by lush tropical gardens. A serene, green escape for a truly private retreat.',
-                beds: 'One queen bed',
-                size: '80 m² (861 sq.ft.)',
-                guests: '2 adults',
+                beds:    'One queen bed',
+                size:    '80 m² (861 sq.ft.)',
+                guests:  '2 adults',
                 amenities: ['Outdoor Bathtub', 'Yoga Deck', 'Rainforest Shower', 'Complimentary Breakfast', 'Garden Terrace'],
-                bookedDates: []
+                available: true
             }
         ];
 
-        // Helper: check if a room is available for the user's selected dates
+
+        // ---- Helper: is a room available? ----
+        // Before: this checked bookedDates arrays.
+        // Now: it simply reads the .available flag set by the DB response.
         function isRoomAvailable(room) {
-            // If user hasn't selected dates, all rooms appear available
-            if (!checkIn || !checkOut) return true;
-
-            // Check if user's dates overlap with any booked range
-            for (var i = 0; i < room.bookedDates.length; i++) {
-                var booked = room.bookedDates[i];
-
-                // Overlap happens if: checkIn < bookedEnd AND checkOut > bookedStart
-                // (Standard date range overlap formula)
-                if (checkIn < booked.to && checkOut > booked.from) {
-                    return false; // Room is booked during user's dates
-                }
-            }
-            return true; // No conflicts found
+            return room.available;
         }
 
-        // Helper: format a number as Indian Rupees
-        function formatPrice(num) {
-            return '₹' + num.toLocaleString('en-IN');
-        }
 
         // Track which room the user has selected
         var selectedRoomId    = null;
         var selectedRoomPrice = 0;
         var selectedRoomName  = '';
 
+
         // ---- STEP 4: Build and show the room cards ----
         function renderRooms() {
             var container = document.getElementById('rooms-container');
-            container.innerHTML = ''; // Clear any existing cards
+            container.innerHTML = ''; // Clear the loading message and any old cards
 
             rooms.forEach(function(room) {
                 var available = isRoomAvailable(room);
@@ -794,57 +802,27 @@
                 // Night count for the price display
                 var nightCount = nights > 0 ? nights : 1;
 
-                /* 
-                 * SVG ICONS — hand-drawn style, matching the reference image
-                 * Bed icon, Ruler/size icon, Person/guests icon
-                 * These are simple SVG paths that look like the icons in the reference
-                 */
-
-                // Bed icon (two pillows on a frame)
-                var bedIcon = '<svg viewBox="0 0 24 24"><path d="M2 10V17M2 14H22M22 10V17M5 10V7C5 6.448 5.448 6 6 6H18C18.552 6 19 6.448 19 7V10"/><rect x="5" y="7" width="4" height="3" rx="1"/><rect x="15" y="7" width="4" height="3" rx="1"/></svg>';
-
-                // Ruler / size icon (square with arrows)
-                var sizeIcon = '<svg viewBox="0 0 24 24"><path d="M3 3H9M3 3V9M3 3L9 9M21 21H15M21 21V15M21 21L15 15M3 21H9M3 21V15M3 21L9 15M21 3H15M21 3V9M21 3L15 9"/></svg>';
-
-                // Person / guests icon
+                // SVG icons for bed, size, guests
+                var bedIcon   = '<svg viewBox="0 0 24 24"><path d="M2 10V17M2 14H22M22 10V17M5 10V7C5 6.448 5.448 6 6 6H18C18.552 6 19 6.448 19 7V10"/><rect x="5" y="7" width="4" height="3" rx="1"/><rect x="15" y="7" width="4" height="3" rx="1"/></svg>';
+                var sizeIcon  = '<svg viewBox="0 0 24 24"><path d="M3 3H9M3 3V9M3 3L9 9M21 21H15M21 21V15M21 21L15 15M3 21H9M3 21V15M3 21L9 15M21 3H15M21 3V9M21 3L15 9"/></svg>';
                 var guestIcon = '<svg viewBox="0 0 24 24"><circle cx="8" cy="7" r="3"/><path d="M2 20C2 17 4.686 15 8 15C11.314 15 14 17 14 20"/><circle cx="17" cy="9" r="2.5"/><path d="M14 20C14 17.8 15.6 16 17 16C18.4 16 20 17.8 20 20"/></svg>';
 
-                card.innerHTML = 
+                card.innerHTML =
                     '<img src="' + room.image + '" alt="' + room.name + '">' +
                     '<div class="room-details">' +
                         '<div>' +
-                            // Room name with arrow (like "Family Pool Villa →")
                             '<div class="room-name-row">' +
                                 '<h3>' + room.name + '</h3>' +
                                 '<span class="arrow">&#8594;</span>' +
                             '</div>' +
-                            // Short description
                             '<p class="room-desc">' + room.description + '</p>' +
-
-                            // ---- SPEC ROWS: icon + text ----
                             '<div class="room-specs">' +
-                                // Bed type
-                                '<div class="spec-row">' +
-                                    '<span class="spec-icon">' + bedIcon + '</span>' +
-                                    '<span>' + room.beds + '</span>' +
-                                '</div>' +
-                                // Room size
-                                '<div class="spec-row">' +
-                                    '<span class="spec-icon">' + sizeIcon + '</span>' +
-                                    '<span>' + room.size + '</span>' +
-                                '</div>' +
-                                // Guest capacity
-                                '<div class="spec-row">' +
-                                    '<span class="spec-icon">' + guestIcon + '</span>' +
-                                    '<span>' + room.guests + '</span>' +
-                                '</div>' +
+                                '<div class="spec-row"><span class="spec-icon">' + bedIcon   + '</span><span>' + room.beds   + '</span></div>' +
+                                '<div class="spec-row"><span class="spec-icon">' + sizeIcon  + '</span><span>' + room.size   + '</span></div>' +
+                                '<div class="spec-row"><span class="spec-icon">' + guestIcon + '</span><span>' + room.guests + '</span></div>' +
                             '</div>' +
-
-                            // ---- AMENITY TAGS (extra highlights, no repeat of specs) ----
                             '<div class="amenities">' + amenitiesHTML + '</div>' +
                         '</div>' +
-
-                        // Footer: price + select button
                         '<div class="room-footer">' +
                             '<div class="room-price">' +
                                 formatPrice(room.pricePerNight) + ' <span>/ night</span>' +
@@ -858,23 +836,20 @@
             });
         }
 
+
         // ---- When user clicks "Select Villa" button ----
         function selectRoom(roomId) {
-            // Find the room data in our array
             var room = rooms.find(function(r) { return r.id === roomId; });
             if (!room) return;
 
-            // Save selection
             selectedRoomId    = roomId;
             selectedRoomPrice = room.pricePerNight;
             selectedRoomName  = room.name;
 
-            // Update the room cards (to show the "Selected" state)
             renderRooms();
-
-            // Update the bill on the right
             updateBill();
         }
+
 
         // ---- Update the bill display ----
         function updateBill() {
@@ -882,17 +857,14 @@
 
             var nightCount = nights > 0 ? nights : 1;
             var subtotal   = selectedRoomPrice * nightCount;
-            var tax        = Math.round(subtotal * 0.18); // 18% GST
+            var tax        = Math.round(subtotal * 0.18);
             var total      = subtotal + tax;
 
-            // Show the bill details, hide the "please select" message
             document.getElementById('no-selection-msg').style.display = 'none';
             document.getElementById('bill-details').style.display     = 'block';
 
-            // Fill in the bill rows
-            // Shorten the room name if too long for the bill box
-            var shortName = selectedRoomName.length > 20 
-                ? selectedRoomName.substring(0, 20) + '...' 
+            var shortName = selectedRoomName.length > 20
+                ? selectedRoomName.substring(0, 20) + '...'
                 : selectedRoomName;
 
             document.getElementById('bill-room-name').innerText = shortName;
@@ -902,25 +874,94 @@
             document.getElementById('bill-tax').innerText       = formatPrice(tax);
             document.getElementById('bill-total').innerText     = formatPrice(total);
 
-            // Enable the proceed button now that a room is chosen
             document.getElementById('proceed-btn').disabled = false;
         }
+
 
         // ---- PROCEED button: save room choice and go to amenities page ----
         document.getElementById('proceed-btn').addEventListener('click', function() {
             if (!selectedRoomId) return;
 
-            // Save the selected room to sessionStorage so the next pages can read it
             sessionStorage.setItem('selectedRoomId',    selectedRoomId);
             sessionStorage.setItem('selectedRoomName',  selectedRoomName);
             sessionStorage.setItem('selectedRoomPrice', selectedRoomPrice);
 
-            // Go to the amenities selection page
             window.location.href = 'amenities.html';
         });
 
-        // ---- Draw the rooms when the page loads ----
-        renderRooms();
+
+        // ============================================================
+        // loadAvailability() — Fetches real availability from the DB
+        //
+        // HOW IT WORKS:
+        //   1. Build a URL with the user's dates and guests as parameters
+        //   2. Call get_availability.php via fetch() (an HTTP GET request)
+        //   3. PHP queries the database and returns JSON like:
+        //      [{ villa_id: 1, base_price: 45000, available: true }, ...]
+        //   4. We loop through the response and update each room in our array
+        //   5. Then we call renderRooms() to show the updated cards
+        //
+        // If the fetch fails (e.g. PHP server not running), we still show
+        // all rooms as available so the page doesn't break completely.
+        // ============================================================
+
+        function loadAvailability() {
+
+            // If no dates are selected, just show all rooms (no filtering needed)
+            if (!checkIn || !checkOut) {
+                renderRooms();
+                return;
+            }
+
+            // Convert Date objects to YYYY-MM-DD strings that PHP/MySQL understands
+            // e.g. "2026-04-01" not "Thu Apr 01 2026 00:00:00 GMT+0530..."
+            function toDateString(d) {
+                var y  = d.getFullYear();
+                var m  = String(d.getMonth() + 1).padStart(2, '0'); // months are 0-indexed
+                var dd = String(d.getDate()).padStart(2, '0');
+                return y + '-' + m + '-' + dd;
+            }
+
+            // Build the URL query string
+            var params = 'check_in='  + toDateString(checkIn)  +
+                         '&check_out=' + toDateString(checkOut) +
+                         '&adults='    + adults                  +
+                         '&children='  + children;
+
+            // fetch() sends an HTTP GET request to our PHP file
+            fetch('get_availability.php?' + params)
+                .then(function(response) {
+                    // .json() reads the response body and parses it as JSON
+                    return response.json();
+                })
+                .then(function(dbData) {
+                    // dbData is an array like:
+                    // [{ villa_id: 1, base_price: 45000.00, available: true }, ...]
+
+                    // Loop through each villa from the DB response
+                    dbData.forEach(function(dbRoom) {
+                        // Find the matching room in our JS array by ID
+                        var room = rooms.find(function(r) { return r.id === dbRoom.villa_id; });
+                        if (room) {
+                            // Override with real DB values
+                            room.available     = dbRoom.available;         // true / false
+                            room.pricePerNight = parseFloat(dbRoom.base_price); // real price
+                        }
+                    });
+
+                    // Now render cards with updated availability and prices
+                    renderRooms();
+                })
+                .catch(function(error) {
+                    // fetch() failed — server might be off, or PHP has an error
+                    // We still render rooms (all showing as available) so the page works
+                    console.error('Availability fetch failed:', error);
+                    renderRooms();
+                });
+        }
+
+        // ---- Start the page: load availability from DB, then render cards ----
+        loadAvailability();
 
     </script>
 
