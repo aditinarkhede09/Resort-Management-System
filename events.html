@@ -1,0 +1,2033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Riviera | Events</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+
+        /* ============================================================
+           EVENTS PAGE — events.html
+           All styles are self-contained here. We do NOT touch style.css.
+
+           PAGE STRUCTURE:
+           1. Top navbar (matching the main site)
+           2. Full-screen hero with secondary events tab-navbar at bottom
+           3. Four content sections — only one visible at a time:
+              [weddings] [conferences] [business] [parties]
+           4. Footer (matching the main site)
+
+           KEY TECHNIQUE — Tab Switching:
+           - All 4 sections are in the HTML.
+           - JS hides/shows them by toggling .active-section.
+           ============================================================ */
+
+        /* ---- RESET & BASE ---- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --black:    #000000;
+            --white:    #ffffff;
+            --light-bg: #f9f9f9;
+            --grey:     #555555;
+            --border:   #e0e0e0;
+            --gold:     #b8963e;   /* accent — used for active tab underline */
+            --gold-light: #fdfaf2; /* Soft gold for highlighted descriptions */
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--grey);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a    { text-decoration: none; color: inherit; }
+        ul   { list-style: none; }
+        img  { display: block; }
+
+
+        /* ============================================================
+           TOP NAVBAR
+           Identical to the main site: logo left, links right, fixed.
+           ============================================================ */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(0, 0, 0, 0.82);
+            color: var(--white);
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--white);
+        }
+
+        .nav-links { display: flex; gap: 35px; }
+
+        .nav-links a {
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--white);
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover       { color: #ccc; }
+        .nav-links a.active-link { color: var(--gold); }
+
+
+        /* ============================================================
+           HERO SECTION
+           ============================================================ */
+        .events-hero {
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;   
+            align-items: center;       
+            position: relative;
+            padding-bottom: 80px;      
+            transition: opacity 0.3s ease;
+        }
+
+        .events-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.42);
+            z-index: 0;
+        }
+
+        .hero-text {
+            position: relative;
+            z-index: 1;
+            text-align: center;    
+            color: var(--white);
+            padding: 0 20px;
+            width: 100%;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            letter-spacing: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 18px;
+            text-align: center;   
+        }
+
+        .hero-text p {
+            font-size: 1.05rem;
+            letter-spacing: 2px;
+            opacity: 0.9;
+            max-width: 620px;
+            margin: 0 auto;        
+            text-align: center;    
+            line-height: 1.8;
+        }
+
+
+        /* ============================================================
+           EVENTS TAB NAVBAR
+           ============================================================ */
+        .events-nav {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.72);
+            display: flex;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .events-nav-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.72);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 22px 45px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: color 0.3s, border-color 0.3s;
+        }
+
+        .events-nav-btn:hover { color: var(--white); }
+        .events-nav-btn.active {
+            color: var(--white);
+            border-bottom: 3px solid var(--gold);
+        }
+
+
+        /* ============================================================
+           CONTENT SECTIONS — SHOW / HIDE
+           ============================================================ */
+        .content-section              { display: none; }
+        .content-section.active-section { display: block; }
+
+
+        /* ============================================================
+           SHARED LAYOUT COMPONENTS
+           ============================================================ */
+
+        .intro-block {
+            padding: 80px 0 60px;
+            text-align: center;
+            background: var(--white);
+        }
+
+        .intro-block h2 {
+            font-size: 2.2rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--black);
+            margin-bottom: 20px;
+        }
+
+        .intro-block p {
+            max-width: 700px;
+            margin: 0 auto;
+            font-size: 1rem;
+            line-height: 1.9;
+        }
+
+        .section-title {
+            font-size: 1.9rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--black);
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-pad { padding: 80px 0; }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Two-column split: image one side, text the other */
+        .feature-split {
+            display: flex;
+            min-height: 500px;
+            background: var(--light-bg);
+        }
+
+        /* Using white background for alternating effect */
+        .feature-split.bg-white {
+            background: var(--white);
+        }
+
+        .feature-split.reverse { flex-direction: row-reverse; }
+
+        .split-img {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .split-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s ease;
+        }
+
+        .split-img img:hover { transform: scale(1.05); }
+
+        .split-text {
+            flex: 1;
+            padding: 70px 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .split-text .tag {
+            font-size: 0.72rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 14px;
+            font-weight: 600;
+        }
+
+        .split-text h3 {
+            font-size: 1.75rem;
+            letter-spacing: 2px;
+            color: var(--black);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .split-text p {
+            font-size: 0.93rem;
+            line-height: 1.9;
+            margin-bottom: 18px;
+        }
+
+        .quote-band {
+            background: var(--black);
+            color: var(--white);
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .quote-band blockquote {
+            font-size: 1.5rem;
+            font-style: italic;
+            font-weight: 300;
+            max-width: 800px;
+            margin: 0 auto 20px;
+            line-height: 1.8;
+        }
+
+        .quote-band cite {
+            font-size: 0.78rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.55;
+        }
+
+        .gallery-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            height: 380px;
+        }
+
+        .gallery-strip img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.4s;
+        }
+
+        .gallery-strip img:hover { opacity: 0.82; }
+
+
+        /* ============================================================
+           VENUE CARDS GRID 
+           ============================================================ */
+        .venue-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+        }
+
+        .venue-card {
+            border: 1px solid var(--border);
+            background: var(--white);
+            overflow: hidden;
+            transition: box-shadow 0.3s, transform 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .venue-card:hover {
+            box-shadow: 0 14px 38px rgba(0,0,0,0.11);
+            transform: translateY(-5px);
+        }
+
+        .venue-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+
+        .venue-card-body { 
+            padding: 28px; 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        .venue-card-body h4 {
+            font-size: 0.88rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--black);
+            margin-bottom: 12px;
+        }
+
+        .venue-card-body p {
+            font-size: 0.85rem;
+            line-height: 1.75;
+            margin-bottom: 18px;
+            flex-grow: 1;
+        }
+
+        /* Standard Badge */
+        .capacity-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: auto;
+        }
+
+        .capacity-badge {
+            background: var(--light-bg);
+            border: 1px solid var(--border);
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            color: var(--black);
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* Descriptive Highlighted Badge (For Business Meetings) */
+        .highlight-desc-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .highlight-desc {
+            background: var(--gold-light);
+            border-left: 3px solid var(--gold);
+            padding: 10px 16px;
+            font-size: 0.85rem;
+            color: var(--black);
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        /* Package Details Stack */
+        .package-details {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-top: 1px solid var(--border);
+            padding-top: 15px;
+        }
+
+        .package-detail-item {
+            font-size: 0.82rem;
+            color: var(--black);
+            font-weight: 600;
+            background: var(--light-bg);
+            padding: 8px 12px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .package-detail-item span.label {
+            color: var(--grey);
+            font-weight: 500;
+        }
+
+
+        /* ============================================================
+           AESTHETIC CAPACITY TABLE
+           ============================================================ */
+        .venue-table-section {
+            padding: 80px 0;
+            background: var(--white);
+        }
+
+        .find-venue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 40px;
+        }
+
+        .find-venue-header h2 {
+            font-size: 2rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--black);
+            font-weight: 700;
+        }
+
+        .capacity-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+
+        .capacity-table thead tr {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .capacity-table th {
+            padding: 12px 20px 12px 0;
+            text-align: left;
+            color: #aaa;
+            font-weight: 400;
+            font-style: italic;
+            font-size: 0.82rem;
+        }
+
+        .capacity-table th:first-child,
+        .capacity-table td:first-child {
+            width: 36%;
+            padding-left: 0;
+        }
+
+        .capacity-table tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+
+        .capacity-table tbody tr:hover {
+            background: var(--light-bg);
+        }
+
+        .capacity-table td {
+            padding: 22px 20px 22px 0;
+            color: var(--black);
+            font-size: 0.9rem;
+        }
+
+        .venue-name-link {
+            display: inline-block;
+            border-bottom: 1px solid #999;
+            padding-bottom: 2px;
+            font-size: 0.95rem;
+            color: var(--black);
+        }
+
+        .no-value { color: #bbb; }
+
+
+        /* ============================================================
+           IMAGE FEATURE GRID 
+           ============================================================ */
+        .image-feature-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+        }
+
+        .img-feature-item {
+            position: relative;
+            overflow: hidden;
+            height: 360px;
+        }
+
+        .img-feature-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .img-feature-item:hover img { transform: scale(1.07); }
+
+        .img-feature-item::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.65) 100%);
+            transition: background 0.4s;
+        }
+
+        .img-feature-item:hover::after {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.45) 100%);
+        }
+
+        .img-feature-text {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%;
+            padding: 28px 24px;
+            color: var(--white);
+            z-index: 1;
+        }
+
+        .img-feature-text h4 {
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .img-feature-text p {
+            font-size: 0.78rem;
+            line-height: 1.65;
+            opacity: 0.9;
+        }
+
+
+        /* ============================================================
+           PACKAGES GRID
+           ============================================================ */
+        .packages-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+        }
+
+        .package-card {
+            border: 1px solid var(--border);
+            background: var(--white);
+            overflow: hidden;
+            transition: box-shadow 0.3s, transform 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .package-card:hover {
+            box-shadow: 0 14px 38px rgba(0,0,0,0.10);
+            transform: translateY(-5px);
+        }
+
+        .package-card-img {
+            width: 100%;
+            height: 210px;
+            object-fit: cover;
+        }
+
+        .package-card-body {
+            padding: 30px 28px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .package-card-body h4 {
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--black);
+            margin-bottom: 14px;
+        }
+
+        .package-card-body p {
+            font-size: 0.86rem;
+            line-height: 1.85;
+            flex-grow: 1;
+        }
+
+
+        /* ============================================================
+           WEDDING PLANNING ACCORDION
+           ============================================================ */
+        .accordion-section {
+            padding: 80px 0;
+            background: var(--light-bg);
+        }
+
+        .accordion-item {
+            background: var(--white);
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .accordion-question {
+            width: 100%;
+            background: var(--white);
+            border: none;
+            padding: 22px 28px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.93rem;
+            font-weight: 600;
+            color: var(--black);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+            transition: background 0.25s;
+        }
+
+        .accordion-question:hover { background: #f5f5f5; }
+
+        .accordion-question .acc-icon {
+            font-size: 1.5rem;
+            font-weight: 300;
+            transition: transform 0.3s;
+            flex-shrink: 0;
+            margin-left: 15px;
+        }
+
+        .accordion-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+            padding: 0 28px;
+        }
+
+        .accordion-answer p {
+            font-size: 0.9rem;
+            line-height: 1.85;
+        }
+
+        .accordion-item.open .accordion-answer {
+            max-height: 250px;
+            padding: 22px 28px;
+            border-top: 1px solid var(--light-bg);
+        }
+
+        .accordion-item.open .accordion-question .acc-icon {
+            transform: rotate(45deg);
+        }
+
+
+        /* ============================================================
+           WEDDING CATERING & MENUS SECTION
+           ============================================================ */
+        .catering-section {
+            padding: 80px 0;
+            background: var(--white);
+        }
+
+        .catering-wrapper {
+            display: flex;
+            gap: 70px;
+            align-items: flex-start;
+        }
+
+        .catering-img {
+            flex: 1;
+        }
+
+        .catering-img img {
+            width: 100%;
+            height: 100%;
+            min-height: 440px;
+            object-fit: cover;
+        }
+
+        .catering-text { flex: 1; }
+
+        .catering-text h2 {
+            font-size: 1.9rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--black);
+            margin-bottom: 10px;
+        }
+
+        .catering-text .sub {
+            display: block;
+            font-size: 0.72rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 22px;
+            font-weight: 600;
+        }
+
+        .catering-text > p {
+            font-size: 0.92rem;
+            line-height: 1.85;
+            margin-bottom: 28px;
+        }
+
+        .menu-category {
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--black);
+            margin-bottom: 10px;
+            margin-top: 26px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 9px 0;
+            border-bottom: 1px solid #f5f5f5;
+            gap: 10px;
+        }
+
+        .menu-item-name {
+            font-size: 0.88rem;
+            color: var(--black);
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+
+        .menu-item-desc {
+            font-size: 0.78rem;
+            color: #999;
+            font-style: italic;
+            text-align: right;
+        }
+
+
+        /* ============================================================
+           INTERACTIVE SPACE EXPLORER (Conferences)
+           ============================================================ */
+        .space-explorer {
+            padding: 80px 0;
+            background: var(--light-bg);
+        }
+
+        .explorer-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 50px;
+            overflow-x: auto;
+            overflow-y: hidden; /* Removed vertical scroll */
+            scrollbar-width: none; /* Hide scrollbar Firefox */
+            -ms-overflow-style: none; /* Hide scrollbar IE/Edge */
+        }
+        
+        .explorer-tabs::-webkit-scrollbar {
+            display: none; /* Hide scrollbar Chrome/Safari */
+        }
+
+        .explorer-tab-btn {
+            background: none;
+            border: none;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #aaa;
+            padding: 16px 28px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+            transition: color 0.25s, border-color 0.25s;
+            margin-bottom: -1px; 
+        }
+
+        .explorer-tab-btn:hover { color: var(--black); }
+
+        .explorer-tab-btn.active {
+            color: var(--black);
+            border-bottom: 2px solid var(--black);
+        }
+
+        .explorer-panel { display: none; }
+        .explorer-panel.active {
+            display: flex;
+            gap: 60px;
+            align-items: flex-start;
+        }
+
+        .explorer-panel-img {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .explorer-panel-img img {
+            width: 100%;
+            height: 360px;
+            object-fit: cover;
+        }
+
+        .explorer-panel-text { flex: 1; }
+
+        .explorer-panel-text h3 {
+            font-size: 1.55rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--black);
+            margin-bottom: 18px;
+        }
+
+        .explorer-panel-text p {
+            font-size: 0.92rem;
+            line-height: 1.9;
+            margin-bottom: 14px;
+        }
+
+        .explorer-stats {
+            display: flex;
+            gap: 16px;
+            margin-top: 30px;
+        }
+
+        .explorer-stat {
+            background: var(--white);
+            border: 1px solid var(--border);
+            padding: 20px 24px;
+            text-align: center;
+            min-width: 90px;
+        }
+
+        .explorer-stat .stat-number {
+            display: block;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--black);
+            line-height: 1.1;
+        }
+
+        .explorer-stat .stat-label {
+            display: block;
+            font-size: 0.62rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #999;
+            margin-top: 5px;
+        }
+
+
+        /* ============================================================
+           FOOTER
+           ============================================================ */
+        .footer {
+            background: var(--black);
+            color: var(--white);
+            padding: 80px 0 20px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .footer-col h4 {
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-col ul li { margin-bottom: 15px; }
+
+        .footer-col ul li a {
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .footer-col ul li a:hover { opacity: 1; }
+
+        .footer-bottom {
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            font-size: 0.85rem;
+            opacity: 0.6;
+            text-align: center;
+        }
+
+
+        /* ============================================================
+           RESPONSIVE 
+           ============================================================ */
+        @media (max-width: 960px) {
+            .hero-text h1          { font-size: 2.2rem; }
+            .events-nav-btn        { padding: 16px 14px; font-size: 0.7rem; letter-spacing: 1px; }
+            .venue-grid            { grid-template-columns: 1fr; }
+            .packages-grid         { grid-template-columns: 1fr; }
+            .image-feature-grid    { grid-template-columns: 1fr 1fr; }
+            .gallery-strip         { grid-template-columns: 1fr; height: auto; }
+            .gallery-strip img     { height: 200px; }
+            .feature-split         { flex-direction: column; min-height: unset; }
+            .feature-split.reverse { flex-direction: column; }
+            .split-text            { padding: 40px 30px; }
+            .catering-wrapper      { flex-direction: column; gap: 30px; }
+            .explorer-panel.active { flex-direction: column; }
+            .explorer-panel-img    { max-width: 100%; }
+            .footer-grid           { grid-template-columns: 1fr 1fr; }
+            .nav-links             { display: none; }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <header class="navbar">
+        <div class="logo">THE RIVIERA</div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="events.html" class="active-link">Events</a></li>
+                <li><a href="dining.html">Dining</a></li>
+                <li><a href="sustainability.html">Sustainability</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+
+    <div class="events-hero" id="events-hero">
+        <div class="hero-text">
+            <h1 id="hero-title">Celebrate in Paradise</h1>
+            <p id="hero-subtitle">
+                Your most extraordinary moments deserve an extraordinary setting —
+                on a private island in the Andaman Sea.
+            </p>
+        </div>
+
+        <nav class="events-nav">
+            <button class="events-nav-btn active" data-target="weddings">Weddings</button>
+            <button class="events-nav-btn" data-target="conferences">Conferences</button>
+            <button class="events-nav-btn" data-target="business">Business Meetings</button>
+            <button class="events-nav-btn" data-target="parties">Parties</button>
+        </nav>
+    </div>
+
+
+    <div class="content-section active-section" data-section="weddings">
+
+        <div class="intro-block">
+            <div class="container">
+                <h2>Island Weddings at The Riviera</h2>
+                <p>
+                    Exchange vows where the turquoise waters of the Andaman Sea become your backdrop.
+                    Our private island offers complete seclusion — from barefoot ceremonies on coral-white sand,
+                    to candlelit dinners under a constellation of stars. Every detail is curated by our
+                    dedicated wedding team to reflect your love story.
+                </p>
+            </div>
+        </div>
+
+        <div class="feature-split">
+            <div class="split-img">
+                <img src="https://i.pinimg.com/originals/66/83/61/668361f892174e03378f2e92d21b43dc.jpg"
+                     alt="Wedding ceremony on Coral Beach, The Riviera Andaman">
+            </div>
+            <div class="split-text">
+                <span class="tag">Signature Ceremony Venue</span>
+                <h3>The Coral Beach</h3>
+                <p>
+                    Our private Coral Beach is the island's most coveted setting for ceremonies.
+                    A crescent of powdery white sand lined with swaying palms, it offers sweeping
+                    views across the Andaman Sea and complete privacy for you and your loved ones.
+                </p>
+                <p>
+                    Accommodates up to 200 guests for a ceremony and 120 for an open-air reception dinner.
+                    Ideal for traditional Indian mandap setups, sunrise ceremonies, and torch-lit receptions.
+                </p>
+                <div class="capacity-list" style="margin-top: 15px;">
+                    <span class="capacity-badge">Size: 720 m²</span>
+                    <span class="capacity-badge">Ceremony: 200 Guests</span>
+                    <span class="capacity-badge">Reception: 200 Guests</span>
+                    <span class="capacity-badge">Banquet: 120 Guests</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-split reverse bg-white">
+            <div class="split-img">
+                <img src="https://thumbs.dreamstime.com/b/wedding-set-up-garden-inside-beach-beautiful-37352173.jpg"
+                     alt="Orchid Pavilion garden wedding setup">
+            </div>
+            <div class="split-text">
+                <span class="tag">Intimate Garden Setting</span>
+                <h3>The Orchid Pavilion</h3>
+                <p>
+                    Nestled within our fragrant tropical gardens, the Orchid Pavilion is a semi-open
+                    thatched structure for couples who want shade and lush greenery without sacrificing
+                    the magic of the outdoors.
+                </p>
+                <p>
+                    Soft lanterns, handwoven island décor, and the scent of frangipani make this setting
+                    deeply romantic.
+                </p>
+                <div class="capacity-list" style="margin-top: 15px;">
+                    <span class="capacity-badge">Size: 280 m²</span>
+                    <span class="capacity-badge">Ceremony: 80 Guests</span>
+                    <span class="capacity-badge">Reception: 80 Guests</span>
+                    <span class="capacity-badge">Banquet: 60 Guests</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-split">
+            <div class="split-img">
+                <img src="https://www.fourseasons.com/alt/img-opt/~65.3402.0,0000-312,5000-3000,0000-1687,5000/publish/content/dam/fourseasons/images/web/KOH/KOH_1397_original.jpg"
+                     alt="Clifftop Terrace">
+            </div>
+            <div class="split-text">
+                <span class="tag">Dramatic Views</span>
+                <h3>Clifftop Terrace</h3>
+                <p>
+                    Perched 35 metres above the sea, this dramatic platform offers 270° ocean panoramas. 
+                    Perfect for pre-wedding sundowners or intimate wedding receptions as the sun dips below the horizon.
+                </p>
+                <div class="capacity-list" style="margin-top: 15px;">
+                    <span class="capacity-badge">Size: 320 m²</span>
+                    <span class="capacity-badge">Ceremony: 60 Guests</span>
+                    <span class="capacity-badge">Reception: 80 Guests</span>
+                    <span class="capacity-badge">Banquet: 50 Guests</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-split reverse bg-white">
+            <div class="split-img">
+                <img src="https://i0.wp.com/blog.shaadishop.co/wp-content/uploads/2016/12/best-dream-weddings1.jpg?fit=800%2C533&ssl=1" 
+                     alt="The Grand Banquet Hall">
+            </div>
+            <div class="split-text">
+                <span class="tag">Indoor Elegance</span>
+                <h3>The Grand Riviera Ballroom</h3>
+                <p>
+                    Our only fully air-conditioned indoor venue. High ceilings, hand-crafted chandeliers, 
+                    and a private foyer make this the spectacular setting for grand receptions and indoor ceremonies.
+                </p>
+                <div class="capacity-list" style="margin-top: 15px;">
+                    <span class="capacity-badge">Size: 900 m²</span>
+                    <span class="capacity-badge">Ceremony: 300 Guests</span>
+                    <span class="capacity-badge">Reception: 350 Guests</span>
+                    <span class="capacity-badge">Banquet: 250 Guests</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-split">
+            <div class="split-img">
+                <img src="https://asiana.tv/wp-content/uploads/2021/09/Planning-The-Perfect-Poolside-Wedding-main.jpg" 
+                     alt="Infinity Pool Deck">
+            </div>
+            <div class="split-text">
+                <span class="tag">Evening Magic</span>
+                <h3>The Infinity Pool Deck</h3>
+                <p>
+                    An after-ceremony reception around our signature pool. Torchlit edges, floating flowers, 
+                    and the ambient sound of waves — pure magic for unforgettable evening celebrations.
+                </p>
+                <div class="capacity-list" style="margin-top: 15px;">
+                    <span class="capacity-badge">Size: 400 m²</span>
+                    <span class="capacity-badge">Reception: 200 Guests</span>
+                    <span class="capacity-badge">Banquet: 100 Guests</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-pad" style="background: var(--light-bg);">
+            <div class="container">
+                <h2 class="section-title">Wedding Packages</h2>
+                <div class="packages-grid">
+
+                    <div class="package-card">
+                        <img class="package-card-img"
+                             src="https://img.freepik.com/premium-photo/bright-indian-wedding-aisle-with-rich-floral-decor_1174497-71897.jpg?semt=ais_hybrid&w=740&q=80"
+                             alt="The Bloom — intimate wedding package">
+                        <div class="package-card-body">
+                            <h4>The Bloom</h4>
+                            <p>
+                                An intimate celebration with a floral mandap, 3-course dinner, 
+                                bridal suite for two nights, and a dedicated wedding coordinator from day one.
+                            </p>
+                            <div class="package-details">
+                                <div class="package-detail-item">
+                                    <span class="label">Approx. Cost</span>
+                                    <span>From ₹6,50,000</span>
+                                </div>
+                                <div class="package-detail-item">
+                                    <span class="label">Capacity</span>
+                                    <span>Up to 40 Guests</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="package-card">
+                        <img class="package-card-img"
+                             src="https://thumbs.dreamstime.com/b/cozy-beach-bonfire-twilight-lights-ocean-view-relaxing-sunset-gatherings-cozy-beach-bonfire-twilight-lights-405272309.jpg"
+                             alt="The Andaman — beach wedding package">
+                        <div class="package-card-body">
+                            <h4>The Andaman</h4>
+                            <p>
+                                A sunset beach ceremony, cocktail hour, gourmet 5-course dinner,
+                                live island music, a beach bonfire, and an Oceanfront Pool Villa stay.
+                            </p>
+                            <div class="package-details">
+                                <div class="package-detail-item">
+                                    <span class="label">Approx. Cost</span>
+                                    <span>From ₹18,00,000</span>
+                                </div>
+                                <div class="package-detail-item">
+                                    <span class="label">Capacity</span>
+                                    <span>Up to 120 Guests</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="package-card">
+                        <img class="package-card-img"
+                             src="https://www.antalyaestate.net/pages/exploring-yacht-wedding-prices-in-turkey.webp"
+                             alt="The Grand Riviera — full island buyout wedding">
+                        <div class="package-card-body">
+                            <h4>The Grand Riviera</h4>
+                            <p>
+                                Our most exclusive offering — full island buyout option, multi-day celebration
+                                with mehendi &amp; sangeet, a private yacht cruise, and a bespoke honeymoon stay.
+                            </p>
+                            <div class="package-details">
+                                <div class="package-detail-item">
+                                    <span class="label">Approx. Cost</span>
+                                    <span>From ₹45,00,000</span>
+                                </div>
+                                <div class="package-detail-item">
+                                    <span class="label">Capacity</span>
+                                    <span>Up to 300 Guests</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="catering-section">
+            <div class="container">
+                <div class="catering-wrapper">
+                    <div class="catering-img">
+                        <img src="https://www.fourseasons.com/alt/img-opt/~80.1860.0,0000-0,2500-3000,0000-1687,5000/publish/content/dam/fourseasons/images/web/LCB/LCB_783_original.jpg"
+                             alt="Wedding catering at The Riviera Andaman — gourmet dinner spread">
+                    </div>
+                    <div class="catering-text">
+                        <span class="sub">Culinary Experiences</span>
+                        <h2>Catering &amp; Menus</h2>
+                        <p>
+                            Our culinary team crafts every wedding menu from scratch — drawing from
+                            the finest Andaman seafood, organic island produce, and international fine-dining
+                            techniques. From a traditional South Indian feast to a modern European tasting menu,
+                            every meal is a celebration in itself.
+                        </p>
+                        
+                        <h4 class="menu-category">Menu Highlights</h4>
+                        <div class="menu-item">
+                            <span class="menu-item-name">Welcome Cocktails</span>
+                            <span class="menu-item-desc">Signature botanical infusions & premium spirits</span>
+                        </div>
+                        <div class="menu-item">
+                            <span class="menu-item-name">Gala Dinner</span>
+                            <span class="menu-item-desc">5-course plated or extravagant international buffet</span>
+                        </div>
+                        <div class="menu-item">
+                            <span class="menu-item-name">Dessert & Cake</span>
+                            <span class="menu-item-desc">Custom 3-tier wedding cake & artisan patisserie station</span>
+                        </div>
+                        <div class="menu-item">
+                            <span class="menu-item-name">Late-Night Bites</span>
+                            <span class="menu-item-desc">Wood-fired pizzas and local island street food</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="quote-band">
+            <div class="container">
+                <blockquote>
+                    "The island belonged only to us. It was the most beautiful day of our lives —
+                    and The Riviera made every single moment feel completely effortless."
+                </blockquote>
+                <cite>— Priya &amp; Arjun, Mumbai · February 2026</cite>
+            </div>
+        </div>
+
+
+        <div class="accordion-section">
+            <div class="container" style="max-width: 820px;">
+                <h2 class="section-title">Planning Your Wedding</h2>
+
+                <div class="accordion-item">
+                    <button class="accordion-question">How far in advance should we book? <span class="acc-icon">+</span></button>
+                    <div class="accordion-answer">
+                        <p>We recommend 12–18 months ahead for peak season (October–March). Our team can sometimes accommodate shorter timelines — contact us to check availability.</p>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-question">Can we bring our own vendors? <span class="acc-icon">+</span></button>
+                    <div class="accordion-answer">
+                        <p>Yes, with prior approval. We have a list of trusted island partners, but we welcome external photographers, makeup artists, and priests. All external vendors must submit documentation 60 days in advance.</p>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-question">Do you offer Hindu, Christian, or civil ceremonies? <span class="acc-icon">+</span></button>
+                    <div class="accordion-answer">
+                        <p>Absolutely. We host traditional Hindu ceremonies with full mandap setup, Christian blessings, civil ceremonies, and interfaith celebrations with a specialist officiant.</p>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-question">How are guests accommodated on the island? <span class="acc-icon">+</span></button>
+                    <div class="accordion-answer">
+                        <p>The Riviera has 68 private villas and suites. For weddings of 80+ guests we offer a block-booking arrangement. Our team coordinates all guest check-ins and speedboat transfers from Port Blair.</p>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-question">What does the wedding planner handle? <span class="acc-icon">+</span></button>
+                    <div class="accordion-answer">
+                        <p>Your dedicated planner manages everything: décor sourcing, vendor coordination, menu tastings, day-of timeline, and guest experience. From first consultation to the final farewell — you only need to enjoy the process.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div><div class="content-section" data-section="conferences">
+
+        <div class="intro-block">
+            <div class="container">
+                <h2>Where Ideas Meet the Ocean</h2>
+                <p>
+                    Redefine the corporate retreat. At The Riviera, state-of-the-art conference technology
+                    meets an island environment that clears minds and sparks ideas. From international
+                    symposia to focused strategy summits, our spaces and dedicated events team deliver
+                    flawless execution — every time.
+                </p>
+            </div>
+        </div>
+
+        <div class="feature-split">
+            <div class="split-img">
+                <img src="https://images.ctfassets.net/ov8o7v78mnye/75Ev8FKncYX0PxB25FSWje/069985d1fb5f9f70e9fb880c9cf8ea25/Untitled-design-2019-06-21T150042.172.png"
+                     alt="Horizon Conference Centre at The Riviera">
+            </div>
+            <div class="split-text">
+                <span class="tag">Flagship Conference Venue</span>
+                <h3>The Horizon Conference Centre</h3>
+                <p>
+                    Our purpose-built conference centre spans 1,400 sq metres of fully flexible,
+                    divisible space. Floor-to-ceiling sliding glass panels ensure every delegate
+                    enjoys natural light and views of the Andaman Sea throughout the day.
+                </p>
+                <p>
+                    AV: 4K laser projection, wireless presentation, professional PA,
+                    simultaneous translation booths, and a dedicated on-site AV technician.
+                </p>
+            </div>
+        </div>
+
+        <div class="venue-table-section" style="background: var(--light-bg);">
+            <div class="container">
+                <div class="find-venue-header">
+                    <h2>Find a Venue</h2>
+                </div>
+                <table class="capacity-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th><em>Size (m²)</em></th>
+                            <th><em>Theatre</em></th>
+                            <th><em>Classroom</em></th>
+                            <th><em>Boardroom</em></th>
+                            <th><em>Banquet</em></th>
+                            <th><em>Reception</em></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="venue-name-link">Horizon Hall — Full</span></td>
+                            <td>1,400</td>
+                            <td>800</td>
+                            <td>450</td>
+                            <td class="no-value">—</td>
+                            <td>600</td>
+                            <td>1,000</td>
+                        </tr>
+                        <tr>
+                            <td><span class="venue-name-link">Horizon Hall — A</span></td>
+                            <td>500</td>
+                            <td>280</td>
+                            <td>150</td>
+                            <td class="no-value">—</td>
+                            <td>200</td>
+                            <td>350</td>
+                        </tr>
+                        <tr>
+                            <td><span class="venue-name-link">Horizon Hall — B</span></td>
+                            <td>500</td>
+                            <td>280</td>
+                            <td>150</td>
+                            <td class="no-value">—</td>
+                            <td>200</td>
+                            <td>350</td>
+                        </tr>
+                        <tr>
+                            <td><span class="venue-name-link">Horizon Hall — C</span></td>
+                            <td>400</td>
+                            <td>200</td>
+                            <td>120</td>
+                            <td class="no-value">—</td>
+                            <td>160</td>
+                            <td>250</td>
+                        </tr>
+                        <tr>
+                            <td><span class="venue-name-link">The Coral Boardroom</span></td>
+                            <td>80</td>
+                            <td class="no-value">—</td>
+                            <td class="no-value">—</td>
+                            <td>22</td>
+                            <td class="no-value">—</td>
+                            <td class="no-value">—</td>
+                        </tr>
+                        <tr>
+                            <td><span class="venue-name-link">Clifftop Terrace</span></td>
+                            <td>320</td>
+                            <td>120</td>
+                            <td class="no-value">—</td>
+                            <td class="no-value">—</td>
+                            <td>80</td>
+                            <td>200</td>
+                        </tr>
+                        <tr>
+                            <td><span class="venue-name-link">Grand Riviera Ballroom</span></td>
+                            <td>900</td>
+                            <td>400</td>
+                            <td>250</td>
+                            <td class="no-value">—</td>
+                            <td>300</td>
+                            <td>500</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="space-explorer">
+            <div class="container">
+                <h2 class="section-title">Explore Our Setups</h2>
+
+                <div class="explorer-tabs">
+                    <button class="explorer-tab-btn active" data-panel="theatre">Theatre</button>
+                    <button class="explorer-tab-btn" data-panel="classroom">Classroom</button>
+                    <button class="explorer-tab-btn" data-panel="boardroom">Boardroom</button>
+                    <button class="explorer-tab-btn" data-panel="banquet">Banquet</button>
+                    <button class="explorer-tab-btn" data-panel="reception">Reception</button>
+                </div>
+
+                <div class="explorer-panel active" data-panel="theatre">
+                    <div class="explorer-panel-img">
+                        <img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?q=80&w=2012&auto=format&fit=crop"
+                             alt="Theatre setup — large conference room">
+                    </div>
+                    <div class="explorer-panel-text">
+                        <h3>Theatre Setup</h3>
+                        <p>
+                            Rows of forward-facing seats centred on a stage or screen.
+                            Ideal for keynote presentations, product launches, AGMs, and large
+                            plenary sessions where delegates primarily listen and observe.
+                        </p>
+                        <p>
+                            Our largest theatre configuration seats up to 800 delegates in Horizon Hall
+                            with full staging, draping, and a large-format 4K LED wall.
+                        </p>
+                        <div class="explorer-stats">
+                            <div class="explorer-stat">
+                                <span class="stat-number">800</span>
+                                <span class="stat-label">Max Seats</span>
+                            </div>
+                            <div class="explorer-stat">
+                                <span class="stat-number">4K</span>
+                                <span class="stat-label">LED Wall</span>
+                            </div>
+                            <div class="explorer-stat">
+                                <span class="stat-number">3</span>
+                                <span class="stat-label">Hall Zones</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="explorer-panel" data-panel="classroom">
+                    <div class="explorer-panel-img">
+                        <img src="https://schultzcenter.org/wp-content/uploads/2019/11/160.jpg"
+                             alt="Classroom setup for training workshops">
+                    </div>
+                    <div class="explorer-panel-text">
+                        <h3>Classroom Setup</h3>
+                        <p>
+                            Tables in rows facing the presenter — each delegate has desk space for
+                            a laptop, notepad, and materials. Best for training workshops, certification
+                            programmes, and seminars that require note-taking.
+                        </p>
+                        <div class="explorer-stats">
+                            <div class="explorer-stat">
+                                <span class="stat-number">450</span>
+                                <span class="stat-label">Max Seats</span>
+                            </div>
+                            <div class="explorer-stat">
+                                <span class="stat-number">1Gbps</span>
+                                <span class="stat-label">Dedicated WiFi</span>
+                            </div>
+                            <div class="explorer-stat">
+                                <span class="stat-number">AV</span>
+                                <span class="stat-label">Included</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="explorer-panel" data-panel="boardroom">
+                    <div class="explorer-panel-img">
+                        <img src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?q=80&w=2069&auto=format&fit=crop"
+                             alt="Executive boardroom with sea view">
+                    </div>
+                    <div class="explorer-panel-text">
+                        <h3>Boardroom Setup</h3>
+                        <p>
+                            One table, all participants facing each other — designed for high-level
+                            discussion and collaborative decision-making. 
+                        </p>
+                        <div class="explorer-stats">
+                            <div class="explorer-stat">
+                                <span class="stat-number">22</span>
+                                <span class="stat-label">Max Seats</span>
+                            </div>
+                            <div class="explorer-stat">
+                                <span class="stat-number">VC</span>
+                                <span class="stat-label">Certified</span>
+                            </div>
+                            <div class="explorer-stat">
+                                <span class="stat-number">Sea</span>
+                                <span class="stat-label">View</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="explorer-panel" data-panel="banquet">
+                    <div class="explorer-panel-img">
+                        <img src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2098&auto=format&fit=crop"
+                             alt="Banquet gala dinner setup">
+                    </div>
+                    <div class="explorer-panel-text">
+                        <h3>Banquet Setup</h3>
+                        <p>
+                            Round tables of 8–10 guests arranged across the room, allowing
+                            conversation while facing a central stage or dance floor. 
+                        </p>
+                        <div class="explorer-stats">
+                            <div class="explorer-stat">
+                                <span class="stat-number">600</span>
+                                <span class="stat-label">Max Guests</span>
+                            </div>
+                            <div class="explorer-stat">
+                                <span class="stat-number">7</span>
+                                <span class="stat-label">Courses</span>
+                            </div>
+                            <div class="explorer-stat">
+                                <span class="stat-number">Full</span>
+                                <span class="stat-label">Butler Svc</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="explorer-panel" data-panel="reception">
+                    <div class="explorer-panel-img">
+                        <img src="https://images.unsplash.com/photo-1527529482837-4698179dc6ce?q=80&w=2070&auto=format&fit=crop"
+                             alt="Cocktail reception setup at the resort">
+                    </div>
+                    <div class="explorer-panel-text">
+                        <h3>Reception / Cocktail</h3>
+                        <p>
+                            Standing setup — high-top tables, lounge clusters, and roving service.
+                            Perfect for networking events, welcome receptions, and product launches.
+                        </p>
+                        <div class="explorer-stats">
+                            <div class="explorer-stat">
+                                <span class="stat-number">1,000</span>
+                                <span class="stat-label">Max Guests</span>
+                            </div>
+                            <div class="explorer-stat">
+                                <span class="stat-number">Bar</span>
+                                <span class="stat-label">Included</span>
+                            </div>
+                            <div class="explorer-stat">
+                                <span class="stat-number">Live</span>
+                                <span class="stat-label">Music</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="quote-band">
+            <div class="container">
+                <blockquote>
+                    "The Riviera gave our leadership team something no city hotel ever could —
+                    clarity, inspiration, and the feeling that great decisions were inevitable."
+                </blockquote>
+                <cite>— Ananya Krishnamurthy, CEO · Indus Ventures</cite>
+            </div>
+        </div>
+
+        <div class="section-pad" style="background: var(--white); padding-bottom: 80px;">
+            <div class="container">
+                <h2 class="section-title">Highlights</h2>
+            </div>
+            <div class="gallery-strip">
+                <img src="https://images.unsplash.com/photo-1551818255-e6e10975bc17?q=80&w=2073&auto=format&fit=crop"
+                     alt="Conference networking at The Riviera">
+                <img src="https://images.unsplash.com/photo-1528605248644-14dd04022da1?q=80&w=2070&auto=format&fit=crop"
+                     alt="Team workshop session">
+                <img src="https://www.bigspeak.com/wp-content/uploads/2017/03/Conference-keynote-speakers-BigSpeak-650x380.jpg"
+                     alt="Evening gala dinner outdoors">
+            </div>
+        </div>
+
+    </div><div class="content-section" data-section="business">
+
+        <div class="intro-block">
+            <div class="container">
+                <h2>Boardrooms Beyond Compare</h2>
+                <p>
+                    When the agenda demands clarity, there is no better setting than an island.
+                    Our executive meeting spaces combine serious infrastructure with the calming
+                    presence of the Andaman Sea. From intimate strategy sessions to full leadership
+                    retreats, every detail is managed so you can focus on what matters.
+                </p>
+            </div>
+        </div>
+
+        <div class="feature-split">
+            <div class="split-img">
+                <img src="https://www.fourseasons.com/alt/img-opt/~80.1860.0,0000-140,8972-3000,0000-1687,5000/publish/content/dam/fourseasons/images/web/KOH/KOH_1386_original.jpg"
+                     alt="The Coral Boardroom — executive meeting room">
+            </div>
+            <div class="split-text">
+                <span class="tag">Executive Suite</span>
+                <h3>The Coral Boardroom</h3>
+                <p>
+                    A 22-seat executive boardroom with a handcrafted teak table, premium leather chairs,
+                    and a full glass wall facing the Andaman Sea.
+                </p>
+                <p>
+                    Comes equipped with video conferencing (Zoom / Teams certified), a digital whiteboard,
+                    and curated stationery. Available full-day, half-day, or hourly, with personalised
+                    catering arranged on request.
+                </p>
+            </div>
+        </div>
+
+        <div class="section-pad" style="background: var(--light-bg);">
+            <div class="container">
+                <h2 class="section-title">Our Meeting Spaces</h2>
+                <div class="venue-grid">
+
+                    <div class="venue-card">
+                        <img src="https://www.fourseasons.com/alt/img-opt/~80.1860.0,0000-140,8972-3000,0000-1687,5000/publish/content/dam/fourseasons/images/web/KOH/KOH_1386_original.jpg"
+                             alt="The Coral Boardroom interior">
+                        <div class="venue-card-body">
+                            <h4>The Coral Boardroom</h4>
+                            <p>Intimate, focused, and fully equipped for executive discussions. Complete privacy with sea views.</p>
+                            <div class="highlight-desc-list">
+                                <div class="highlight-desc">Comfortably accommodates up to 22 executives in a professional boardroom layout.</div>
+                                <div class="highlight-desc">Can be reconfigured to a U-Shape arrangement for 18 delegates.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-card">
+                        <img src="https://www.fourseasons.com/alt/img-opt/~80.1860.0,0000-312,7854-3000,0000-1687,5000/publish/content/dam/fourseasons/images/web/KOH/KOH_1071_original.jpg"
+                             alt="The Lagoon Lounge — breakout space">
+                        <div class="venue-card-body">
+                            <h4>The Lagoon Lounge</h4>
+                            <p>Modular soft seating, writable walls, and natural light — designed for creative collaboration and team workshops.</p>
+                            <div class="highlight-desc-list">
+                                <div class="highlight-desc">Perfect for interactive workshops with seating for up to 30 participants.</div>
+                                <div class="highlight-desc">Relaxed lounge layout allows up to 40 guests for casual networking.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="venue-card">
+                        <img src="https://www.fourseasons.com/alt/img-opt/~80.1860.0,0000-198,8495-3000,0000-1687,5000/publish/content/dam/fourseasons/images/web/KOH/KOH_1363_original.jpg"
+                             alt="The Mangrove Terrace — open air meeting">
+                        <div class="venue-card-body">
+                            <h4>The Mangrove Terrace</h4>
+                            <p>Shaded open-air terrace for morning standups, creative sessions, or alfresco working lunches beside the lagoon.</p>
+                            <div class="highlight-desc-list">
+                                <div class="highlight-desc">Offers seated arrangements for an intimate group of 20 members.</div>
+                                <div class="highlight-desc">Standing space easily supports an open reception or gathering for 35 people.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="quote-band">
+            <div class="container">
+                <blockquote>
+                    "We close deals faster here. Something about the ocean air puts everyone
+                    in exactly the right frame of mind."
+                </blockquote>
+                <cite>— Rahul Mehta, Managing Director · Horizon Capital</cite>
+            </div>
+        </div>
+
+        <div class="section-pad" style="background: var(--white); padding-bottom: 0;">
+            <div class="container">
+                <h2 class="section-title">Why Teams Choose The Riviera</h2>
+            </div>
+        </div>
+
+        <div class="image-feature-grid" style="margin-bottom: 80px;">
+
+            <div class="img-feature-item">
+                <img src="https://images.contentstack.io/v3/assets/bltd4dd5b2d705252bc/blt24c49acbbac34085/69c3d59bc55edc51ef8d5ca1/business-collaboration-privacybusiness-032326.jpg?width=3840&quality=75&format=pjpg&auto=webp"
+                     alt="Complete privacy — private island beach">
+                <div class="img-feature-text">
+                    <h4>Complete Privacy</h4>
+                    <p>A private island ensures zero interruptions. Your meetings and conversations stay fully confidential.</p>
+                </div>
+            </div>
+
+            <div class="img-feature-item">
+                <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=2070&auto=format&fit=crop"
+                     alt="Curated catering — gourmet meals for the team">
+                <div class="img-feature-text">
+                    <h4>Curated Catering</h4>
+                    <p>Executive breakfasts, working lunches, and evening sundowners — personalised for your entire delegation.</p>
+                </div>
+            </div>
+
+            <div class="img-feature-item">
+                <img src="https://www.area83.in/blog/resorts-with-team-building-activities-in-bangalore-26.png"
+                     alt="Team activities on the island">
+                <div class="img-feature-text">
+                    <h4>Team Activities</h4>
+                    <p>Between sessions: games, snorkelling, kayaking, sunset yacht cruises, and private beach bonfires to energise the team.</p>
+                </div>
+            </div>
+
+            <div class="img-feature-item">
+                <img src="https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?q=80&w=2071&auto=format&fit=crop"
+                     alt="Dedicated coordinator — seamless event management">
+                <div class="img-feature-text">
+                    <h4>Dedicated Coordinator</h4>
+                    <p>One point of contact manages AV, catering, accommodation, and transfers — from enquiry to departure.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div><div class="content-section" data-section="parties">
+
+        <div class="intro-block">
+            <div class="container">
+                <h2>Private Island Celebrations</h2>
+                <p>
+                    Birthdays, anniversaries, milestone moments — celebrate them the way they deserve.
+                    Whether you envision a glamorous black-tie soirée, a barefoot beach bash, or a
+                    Bollywood night under the stars, our team transforms every vision into an evening
+                    the island will remember.
+                </p>
+            </div>
+        </div>
+
+        <div class="gallery-strip">
+            <img src="https://images.stockcake.com/public/9/6/d/96d4100c-ca71-4e09-b84e-d7e90c294a87_large/joyful-party-celebration-stockcake.jpg"
+                 alt="Live music concert on the beach at night">
+            <img src="https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?q=80&w=2070&auto=format&fit=crop"
+                 alt="Tropical beach party at The Riviera">
+            <img src="https://www.hamaraevent.com/lib/js/kcfinder/upload/images/image1%2825%29.jpeg"
+                 alt="Children's party">
+        </div>
+
+        <div class="section-pad">
+            <div class="container">
+                <h2 class="section-title">Party Themes &amp; Experiences</h2>
+                <div class="packages-grid">
+
+                    <div class="package-card">
+                        <img class="package-card-img"
+                             src="https://ammothines.gr/wp-content/uploads/2025/05/Private-events.jpg"
+                             alt="Andaman Nights — tropical beach party with bonfires">
+                        <div class="package-card-body">
+                            <h4>Andaman Nights</h4>
+                            <p>
+                                A tropical beach party at its finest. Tiki torches, steel drum music,
+                                bioluminescent cocktails, and a fresh seafood grill under a sky full of stars.
+                                Perfect for milestone birthdays and sundowner anniversaries.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="package-card">
+                        <img class="package-card-img"
+                             src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=2098&auto=format&fit=crop"
+                             alt="Black Tie Gala — elegant evening in the Grand Ballroom">
+                        <div class="package-card-body">
+                            <h4>Black Tie Gala</h4>
+                            <p>
+                                Transform our Grand Riviera Ballroom into a glittering evening of elegance.
+                                Live jazz, champagne towers, a gourmet 7-course dinner, and arrival
+                                by private speedboat from the mainland.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="package-card">
+                        <img class="package-card-img"
+                             src="https://images.unsplash.com/photo-1603190287605-e6ade32fa852?q=80&w=2070&auto=format&fit=crop"
+                             alt="Bespoke celebration — fireworks over the water">
+                        <div class="package-card-body">
+                            <h4>Bespoke</h4>
+                            <p>
+                                You dream it, we build it. From Bollywood theme nights to a private
+                                concert on the beach — our events team has no template and no limits.
+                                Tell us your vision and we will make it happen.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-split" style="margin-bottom: 80px;">
+            <div class="split-img">
+                <img src="https://marine-project.com/wp-content/uploads/2024/09/Bonfire-Bliss-British-virgin-island-luxury-yacht-charter.jpg"
+                     alt="Private beach bonfire party at The Riviera, Andaman">
+            </div>
+            <div class="split-text">
+                <span class="tag">Most Requested</span>
+                <h3>The Private Beach Bonfire</h3>
+                <p>
+                    A private section of Coral Beach, a roaring bonfire, cocktails by your personal
+                    mixologist, and a live acoustic set as the waves lap the shore.
+                </p>
+                <p>
+                    As the night deepens, the sky fills with stars visible as nowhere else from this
+                    remote corner of the Andaman archipelago. Capacity: 20 to 120 guests.
+                    Available year-round, subject to weather.
+                </p>
+            </div>
+        </div>
+
+        <div class="quote-band">
+            <div class="container">
+                <blockquote>
+                    "They turned a simple birthday into an evening I will never stop talking about.
+                    The bonfire, the music, the ocean — absolute magic."
+                </blockquote>
+                <cite>— Meera Nair, Kochi · January 2025</cite>
+            </div>
+        </div>
+        
+        <div class="section-pad" style="background: var(--light-bg); padding-bottom: 0;">
+            <div class="container">
+                <h2 class="section-title">Every Celebration Includes</h2>
+            </div>
+        </div>
+
+        <div class="image-feature-grid" style="margin-bottom: 80px;">
+
+            <div class="img-feature-item">
+                <img src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?q=80&w=2070&auto=format&fit=crop"
+                     alt="Live entertainment — musician performing on the beach at night">
+                <div class="img-feature-text">
+                    <h4>Live Entertainment</h4>
+                    <p>Curated musicians, DJs, fire dancers, or classical ensembles — tailored to your celebration's style.</p>
+                </div>
+            </div>
+
+            <div class="img-feature-item">
+                <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=2057&auto=format&fit=crop"
+                     alt="Signature cocktail bar — mixologist crafting drinks">
+                <div class="img-feature-text">
+                    <h4>Signature Bar</h4>
+                    <p>Custom cocktail menus, premium spirits, and a personal mixologist creating drinks only for your event.</p>
+                </div>
+            </div>
+
+            <div class="img-feature-item">
+                <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=1989&auto=format&fit=crop"
+                     alt="Custom celebration cake — patisserie creation">
+                <div class="img-feature-text">
+                    <h4>Custom Patisserie</h4>
+                    <p>Handcrafted celebration cakes and dessert installations designed personally by our head pâtissier.</p>
+                </div>
+            </div>
+
+            <div class="img-feature-item">
+                <img src="https://images.unsplash.com/photo-1537633552985-df8429e8048b?q=80&w=2070&auto=format&fit=crop"
+                     alt="Photography — couple portraits on the beach at golden hour">
+                <div class="img-feature-text">
+                    <h4>Photography</h4>
+                    <p>Our partner photographers capture every magic moment — from golden hour to the very last dance.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div><footer class="footer">
+        <div class="container footer-grid">
+
+            <div class="footer-col">
+                <div class="logo" style="color:white; font-size:1.3rem;">THE RIVIERA</div>
+                <p style="margin-top:15px; opacity:0.6; font-size:0.85rem; max-width:200px; line-height:1.6;">
+                    Where Luxury Meets the Sea.<br>Andaman Islands, India.
+                </p>
+            </div>
+
+            <div class="footer-col">
+                <h4>Menu</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="events.html">Events</a></li>
+                    <li><a href="dining.html">Dining</a></li>
+                    <li><a href="sustainability.html">Sustainability</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Terms Of Use</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4>Connect</h4>
+                <ul>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Instagram</a></li>
+                    <li><a href="#">Facebook</a></li>
+                </ul>
+            </div>
+
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 The Riviera Private Isle. All rights reserved.</p>
+        </div>
+    </footer>
+
+
+    <script>
+        /* -------------------------------------------------------
+           1. TAB SWITCHING
+           ------------------------------------------------------- */
+        var heroImages = {
+            weddings:    'https://media.architecturaldigest.com/photos/666750dd10ff1fed8fc1e37d/master/w_1600%2Cc_limit/GettyImages-1127706701.jpg',
+            conferences: 'https://images.unsplash.com/photo-1587825140708-dfaf72ae4b04?q=80&w=2070&auto=format&fit=crop',
+            business:    'https://www.fourseasons.com/alt/img-opt/~80.1860.0,0000-312,5000-3000,0000-1687,5000/publish/content/dam/fourseasons/images/web/KOH/KOH_1391_original.jpg',
+            parties:     'https://finnsbeachclub.com/wp-content/uploads/2023/04/the-beautiful-sunset-in-bali-at-finns-beach-club.jpg'
+        };
+
+        var heroContent = {
+            weddings: {
+                title:    'Celebrate in Paradise',
+                subtitle: 'Your most extraordinary moments deserve an extraordinary setting — on a private island in the Andaman Sea.'
+            },
+            conferences: {
+                title:    'Where Ideas Meet the Ocean',
+                subtitle: 'World-class conference facilities in a setting that clears minds and inspires your best thinking.'
+            },
+            business: {
+                title:    'Boardrooms Beyond Compare',
+                subtitle: 'Executive meeting spaces where every detail is managed and every view is unforgettable.'
+            },
+            parties: {
+                title:    'Celebrate Like Never Before',
+                subtitle: 'Private island parties — from barefoot beach bashes to black-tie galas under a sky full of stars.'
+            }
+        };
+
+        var navButtons      = document.querySelectorAll('.events-nav-btn');
+        var contentSections = document.querySelectorAll('.content-section');
+        var heroEl          = document.getElementById('events-hero');
+        var heroTitleEl     = document.getElementById('hero-title');
+        var heroSubtitleEl  = document.getElementById('hero-subtitle');
+
+        heroEl.style.backgroundImage = 'url(' + heroImages['weddings'] + ')';
+
+        navButtons.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var target = this.getAttribute('data-target');
+
+                navButtons.forEach(function(b) { b.classList.remove('active'); });
+                this.classList.add('active');
+
+                heroEl.style.transition = 'opacity 0.25s ease';
+                heroEl.style.opacity    = '0.5';
+
+                setTimeout(function() {
+                    heroEl.style.backgroundImage = 'url(' + heroImages[target] + ')';
+                    heroTitleEl.innerText        = heroContent[target].title;
+                    heroSubtitleEl.innerText     = heroContent[target].subtitle;
+                    heroEl.style.opacity         = '1';
+                }, 250);
+
+                contentSections.forEach(function(s) {
+                    s.classList.remove('active-section');
+                });
+
+                var match = document.querySelector('[data-section="' + target + '"]');
+                if (match) { match.classList.add('active-section'); }
+
+                setTimeout(function() {
+                    if (match) {
+                        match.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 320);
+            });
+        });
+
+        /* -------------------------------------------------------
+           2. SPACE EXPLORER (Conferences section)
+           ------------------------------------------------------- */
+        var explorerTabBtns = document.querySelectorAll('.explorer-tab-btn');
+        var explorerPanels  = document.querySelectorAll('.explorer-panel');
+
+        explorerTabBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var panel = this.getAttribute('data-panel');
+
+                explorerTabBtns.forEach(function(b) { b.classList.remove('active'); });
+                this.classList.add('active');
+
+                explorerPanels.forEach(function(p) { p.classList.remove('active'); });
+                var match = document.querySelector('.explorer-panel[data-panel="' + panel + '"]');
+                if (match) { match.classList.add('active'); }
+            });
+        });
+
+        /* -------------------------------------------------------
+           3. ACCORDION (Weddings planning section)
+           ------------------------------------------------------- */
+        document.addEventListener('click', function(e) {
+            var question = e.target.closest('.accordion-question');
+            if (!question) return;  
+
+            var item   = question.parentNode;               
+            var isOpen = item.classList.contains('open');   
+
+            document.querySelectorAll('.accordion-item').forEach(function(i) {
+                i.classList.remove('open');
+            });
+
+            if (!isOpen) { item.classList.add('open'); }
+        });
+
+    </script>
+</body>
+</html>
