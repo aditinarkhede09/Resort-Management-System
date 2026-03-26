@@ -67,20 +67,6 @@
         /* Error text shown below invalid field */
         .field-error { font-size: 0.7rem; color: #cc0000; margin-top: 5px; display: none; }
 
-        /* --- CARD TYPE TABS (Debit / Credit only — no UPI) --- */
-        .card-tabs { display: flex; margin-bottom: 25px; border: 1px solid #ddd; }
-
-        .card-tab {
-            flex: 1; padding: 14px; text-align: center; cursor: pointer;
-            font-size: 0.82rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
-            color: #888; background: #fff; transition: all 0.2s; border: none;
-        }
-
-        /* Divider between the two tabs */
-        .card-tab:first-child { border-right: 1px solid #ddd; }
-
-        .card-tab.active { background: #000; color: #fff; }
-
         /* Secure badge */
         .secure-notice {
             display: flex; align-items: center; gap: 10px;
@@ -151,8 +137,9 @@
         <nav>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="index.html#highlights">Experiences</a></li>
+                <li><a href="#">Events</a></li>
                 <li><a href="#">Dining</a></li>
+                <li><a href="sustainability.html">Sustainability</a></li>
                 <li><a href="login.html">Login</a></li>
             </ul>
         </nav>
@@ -206,16 +193,6 @@
                 <!-- Card Details -->
                 <div class="form-card">
                     <p class="form-section-heading">Card Details</p>
-
-                    <!--
-                        CARD TYPE TABS — only Debit and Credit (no UPI).
-                        Clicking a tab calls selectTab(this) which switches the active style.
-                        This is just a visual toggle — actual card processing would need a payment gateway.
-                    -->
-                    <div class="card-tabs">
-                        <div class="card-tab active" onclick="selectTab(this)">&#128179; Debit Card</div>
-                        <div class="card-tab" onclick="selectTab(this)">&#128179; Credit Card</div>
-                    </div>
 
                     <!-- Padlock security notice -->
                     <div class="secure-notice">
@@ -433,20 +410,6 @@
             '<div class="reminder-row"><label>Check-out</label><span>' + formatDate(checkOut) + '</span></div>' +
             '<div class="reminder-row"><label>Guests</label><span>' + adults + ' Adults' + (children > 0 ? ', ' + children + ' Children' : '') + '</span></div>' +
             '<div class="reminder-row"><label>Total Due</label><span style="font-size:1.05rem;">' + formatPrice(grandTotal) + '</span></div>';
-
-
-        // ============================================================
-        // CARD TAB SWITCHER
-        // Only 2 tabs: Debit and Credit (UPI removed)
-        // ============================================================
-        function selectTab(clickedTab) {
-            // Remove active class from both tabs
-            document.querySelectorAll('.card-tab').forEach(function(tab) {
-                tab.classList.remove('active');
-            });
-            // Add active to the one that was clicked
-            clickedTab.classList.add('active');
-        }
 
 
         // ============================================================

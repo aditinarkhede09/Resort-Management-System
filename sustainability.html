@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sustainability | The Riviera</title>
+
+    <!-- Same Google Font as the rest of the website -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Link the shared stylesheet for navbar, footer, and base styles -->
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        /* =====================================================
+           sustainability.html — Page-specific styles
+           All base styles (navbar, footer, etc.) come from style.css
+           These styles are ONLY for this page's unique sections.
+           ===================================================== */
+
+        /* The body background is slightly off-white for a clean feel */
+        body { background: #fafafa; }
+
+        /* ===================== HERO SECTION =====================
+           Full-viewport dark banner with a real ocean photo behind it.
+           The dark overlay makes the white text readable. */
+        .sustain-hero {
+            position: relative;
+            height: 88vh;             /* Takes up most of the screen */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        /* The background photo — fills the entire hero box */
+        .sustain-hero-bg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;         /* crop to fill without stretching */
+            z-index: 0;
+        }
+
+        /* Dark gradient overlay so text is clearly readable over the photo */
+        .sustain-hero::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            /* gradient: more dark at bottom so title pops */
+            background: linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.65) 100%);
+            z-index: 1;
+        }
+
+        /* All text inside the hero sits above the overlay (z-index: 2) */
+        .sustain-hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+
+        /* Small label above the main title */
+        .hero-eyebrow {
+            font-size: 0.75rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            opacity: 0.75;
+            margin-bottom: 18px;
+            display: block;
+        }
+
+        .sustain-hero-content h1 {
+            font-size: 3.8rem;
+            font-weight: 700;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            line-height: 1.2;
+            margin-bottom: 22px;
+        }
+
+        .sustain-hero-content p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            opacity: 0.88;
+            max-width: 600px;
+            margin: 0 auto 35px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Scroll-down arrow cue at the very bottom of the hero */
+        .scroll-cue {
+            position: absolute;
+            bottom: 35px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Animated bouncing arrow */
+        .scroll-cue .arrow {
+            font-size: 1.4rem;
+            animation: bounce 2s infinite; /* runs forever */
+        }
+
+        /* The bounce keyframe animation — moves arrow up and down */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(8px); }
+        }
+
+
+        /* ===================== INTRO SECTION =====================
+           A short statement of intent — centred, full width */
+        .intro-section {
+            padding: 90px 5%;
+            text-align: center;
+            background: #fff;
+        }
+
+        /* Small decorative line above section titles */
+        .section-line {
+            width: 50px;
+            height: 2px;
+            background: #000;
+            margin: 0 auto 20px;
+        }
+
+        .intro-section h2 {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #999;
+            margin-bottom: 18px;
+        }
+
+        .intro-section p.intro-text {
+            font-size: 1.3rem;
+            font-weight: 300;          /* light weight for elegance */
+            line-height: 1.9;
+            max-width: 780px;
+            margin: 0 auto;
+            color: #333;
+            letter-spacing: 0.3px;
+        }
+
+        /* ===================== STATS STRIP =====================
+           4 big numbers in a row — shows commitment at a glance */
+        .stats-strip {
+            background: #000;
+            padding: 55px 5%;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .stat-item { text-align: center; color: #fff; }
+
+        /* The big number */
+        .stat-item .stat-num {
+            display: block;
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        /* Label below the number */
+        .stat-item .stat-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            opacity: 0.6;
+        }
+
+
+        /* ===================== SDG SECTIONS =====================
+           Each SDG gets its own full-width section.
+           They alternate: photo-left/text-right, then text-left/photo-right.
+           This alternating layout is taken from the reference images shared. */
+
+        .sdg-section {
+            display: flex;
+            min-height: 560px;         /* tall enough to breathe */
+            background: #fff;
+        }
+
+        /* EVEN sections flip the layout (photo on right) */
+        .sdg-section.flip { flex-direction: row-reverse; }
+
+        /* ---- Photo half ---- */
+        .sdg-photo {
+            flex: 1;                   /* takes up half the width */
+            min-width: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .sdg-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;         /* fills without stretching */
+            display: block;
+            transition: transform 0.7s ease; /* zoom on hover */
+        }
+
+        .sdg-photo:hover img { transform: scale(1.04); }
+
+        /* Small coloured SDG badge pinned to corner of the photo */
+        .sdg-badge {
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+            padding: 8px 16px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #fff;
+            z-index: 2;
+        }
+
+        /* Each goal has its own UN SDG colour */
+        .badge-14 { background: #0A97D9; }  /* Life Below Water — blue */
+        .badge-12 { background: #BF8B2E; }  /* Responsible Consumption — gold */
+        .badge-7  { background: #FCC30B; color: #000; }  /* Clean Energy — yellow (dark text for contrast) */
+        .badge-8  { background: #A21942; }  /* Decent Work — crimson */
+        .badge-6  { background: #26BDE2; }  /* Clean Water — sky blue */
+
+        /* ---- Text half ---- */
+        .sdg-text {
+            flex: 1;
+            padding: 70px 65px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Goal number label (e.g. "SDG GOAL 14") */
+        .sdg-goal-label {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #aaa;
+            margin-bottom: 12px;
+        }
+
+        /* Goal title */
+        .sdg-text h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #000;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 1.25;
+            margin-bottom: 6px;
+        }
+
+        /* Thin coloured bar below title — uses the SDG colour */
+        .sdg-accent-bar {
+            height: 3px;
+            width: 55px;
+            margin: 16px 0 22px;
+            border-radius: 2px;
+        }
+
+        .bar-14 { background: #0A97D9; }
+        .bar-12 { background: #BF8B2E; }
+        .bar-7  { background: #FCC30B; }
+        .bar-8  { background: #A21942; }
+        .bar-6  { background: #26BDE2; }
+
+        /* "Why this matters at The Riviera" subtitle */
+        .sdg-why {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #888;
+            margin-bottom: 16px;
+        }
+
+        /* Main description paragraph */
+        .sdg-text p.sdg-desc {
+            font-size: 1rem;
+            color: #444;
+            line-height: 1.85;
+            margin-bottom: 28px;
+            font-weight: 300;
+        }
+
+        /* ---- Initiative bullets ----
+           Each initiative is one row: icon dot + text */
+        .sdg-initiatives { list-style: none; padding: 0; margin: 0; }
+
+        .sdg-initiatives li {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 14px;
+            font-size: 0.9rem;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* The coloured dot bullet */
+        .sdg-initiatives li .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 6px; /* vertically aligns with first line of text */
+        }
+
+        /* Dot colours match the SDG */
+        .dot-14 { background: #0A97D9; }
+        .dot-12 { background: #BF8B2E; }
+        .dot-7  { background: #FCC30B; }
+        .dot-8  { background: #A21942; }
+        .dot-6  { background: #26BDE2; }
+
+        /* Bold initiative title within the li */
+        .sdg-initiatives li strong {
+            font-weight: 600;
+            color: #000;
+        }
+
+        /* Grey background for alternate sections (even-numbered SDGs) */
+        .sdg-section.grey-bg { background: #f7f7f5; }
+
+
+        /* ===================== PLEDGE SECTION =====================
+           A full-width dark section with a strong commitment statement */
+        .pledge-section {
+            position: relative;
+            padding: 110px 5%;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        /* Background photo for the pledge section */
+        .pledge-bg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            z-index: 0;
+        }
+
+        /* Dark overlay */
+        .pledge-section::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.72);
+            z-index: 1;
+        }
+
+        /* Content sits on top of the overlay */
+        .pledge-content {
+            position: relative;
+            z-index: 2;
+            max-width: 750px;
+            margin: 0 auto;
+            color: #fff;
+        }
+
+        .pledge-content .eyebrow {
+            font-size: 0.68rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            opacity: 0.6;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        .pledge-content h2 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            line-height: 1.3;
+            margin-bottom: 25px;
+        }
+
+        .pledge-content p {
+            font-size: 1rem;
+            line-height: 1.9;
+            opacity: 0.8;
+            margin-bottom: 35px;
+            font-weight: 300;
+        }
+
+
+        /* ===================== CERTIFICATIONS STRIP =====================
+           Logos / text badges of certifications & memberships */
+        .cert-section {
+            padding: 70px 5%;
+            background: #fff;
+            text-align: center;
+        }
+
+        .cert-section h3 {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #aaa;
+            margin-bottom: 40px;
+        }
+
+        /* Flex row of certification badge items */
+        .cert-grid {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .cert-item {
+            border: 1px solid #e0e0e0;
+            padding: 18px 30px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #333;
+            text-transform: uppercase;
+            background: #fafafa;
+        }
+
+
+        /* ===================== RESPONSIVE ===================== */
+        @media (max-width: 900px) {
+            /* Stack each SDG section vertically */
+            .sdg-section, .sdg-section.flip { flex-direction: column; }
+
+            /* Photo fills full width, fixed height */
+            .sdg-photo { height: 280px; }
+            .sdg-photo img { height: 280px; }
+
+            /* Text gets comfortable padding */
+            .sdg-text { padding: 45px 30px; }
+
+            .sustain-hero-content h1 { font-size: 2.4rem; }
+
+            /* Stats wrap into 2 columns */
+            .stats-strip { justify-content: center; gap: 40px; }
+            .stat-item { width: 40%; }
+        }
+
+        @media (max-width: 600px) {
+            .sustain-hero-content h1 { font-size: 1.8rem; letter-spacing: 3px; }
+            .sdg-text { padding: 35px 20px; }
+            .sdg-text h2 { font-size: 1.5rem; }
+            .stat-item { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===================== NAVBAR =====================
+         Copied from index.html so it looks identical.
+         "Sustainability" link is bold to show active page. -->
+    <header class="navbar" id="navbar">
+        <div class="logo">
+            <img src="img/logo.png" alt="Riviera Logo" class="logo-img">
+            THE RIVIERA
+        </div>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#">Events</a></li>
+                <li><a href="#">Dining</a></li>
+                <!-- Active link has underline to show current page -->
+                <li><a href="sustainability.html" style="border-bottom: 1.5px solid #fff; padding-bottom: 2px;">Sustainability</a></li>
+                <li><a href="login.html">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+
+    <!-- ===================== HERO ===================== -->
+    <section class="sustain-hero">
+        <!-- Real underwater/ocean photo for the hero background -->
+        <img
+            class="sustain-hero-bg"
+            src="img/sustainability.jpg"
+            alt="Andaman coral reef underwater"
+        >
+
+        <div class="sustain-hero-content">
+            <span class="hero-eyebrow">The Riviera Private Isle, Andaman</span>
+            <h1>Our Pledge to<br>the Planet</h1>
+            <p>
+                Luxury and responsibility are not opposites. At The Riviera, we believe the most beautiful
+                places on earth can only be enjoyed if we commit to protecting them — today, and for every
+                generation that follows.
+            </p>
+        </div>
+
+        <!-- Scroll cue at the bottom -->
+        <div class="scroll-cue">
+            <span class="arrow">&#8964;</span>
+            <span>Scroll to explore</span>
+        </div>
+    </section>
+
+
+    <!-- ===================== INTRO ===================== -->
+    <section class="intro-section">
+        <h2>Our Sustainability Framework</h2>
+        <div class="section-line"></div>
+        <p class="intro-text">
+            Nestled in one of the world's most fragile marine ecosystems, The Riviera operates with the
+            understanding that our island is not ours to own — it is ours to protect. We have aligned our
+            operations with five United Nations Sustainable Development Goals that are most relevant to
+            the Andaman archipelago, committing to measurable action across every aspect of resort life.
+        </p>
+    </section>
+
+
+    <!-- ===================== STATS STRIP ===================== -->
+    <div class="stats-strip">
+        <div class="stat-item">
+            <span class="stat-num">100%</span>
+            <span class="stat-label">Renewable Energy Target by 2027</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-num">0</span>
+            <span class="stat-label">Single-Use Plastics on Property</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-num">85%</span>
+            <span class="stat-label">Local Workforce from Andaman</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-num">500m²</span>
+            <span class="stat-label">Coral Reef Restored Since 2023</span>
+        </div>
+    </div>
+
+
+    <!-- =====================================================================
+         SDG 1 — GOAL 14: LIFE BELOW WATER
+         Photo on the LEFT, text on the RIGHT
+         ===================================================================== -->
+    <section class="sdg-section" id="goal14">
+
+        <!-- Photo half -->
+        <div class="sdg-photo">
+            <img
+                src="https://images.unsplash.com/photo-1546026423-cc4642628d2b?q=80&w=2071&auto=format&fit=crop"
+                alt="Coral reef in Andaman waters"
+            >
+            <!-- SDG badge pinned to the bottom-left of the photo -->
+            <div class="sdg-badge badge-14">SDG Goal 14</div>
+        </div>
+
+        <!-- Text half -->
+        <div class="sdg-text">
+            <p class="sdg-goal-label">SDG Goal 14 &nbsp;·&nbsp; Life Below Water</p>
+            <h2>Guardians of<br>the Reef</h2>
+            <div class="sdg-accent-bar bar-14"></div>
+            <p class="sdg-why">Why this matters at The Riviera</p>
+            <p class="sdg-desc">
+                The Andaman Islands host some of the most biodiverse coral reefs in the Indian Ocean — and
+                some of the most threatened. As a private island resort, our primary amenity is not our villas;
+                it is the ocean. We treat it accordingly. Every decision we make, from operations to guest
+                experiences, is filtered through one question: does this protect what lives beneath the waves?
+            </p>
+
+            <!-- List of concrete initiatives -->
+            <ul class="sdg-initiatives">
+                <li>
+                    <span class="dot dot-14"></span>
+                    <span><strong>Coral Outplanting Programme:</strong> Our marine biologists grow coral fragments
+                    in underwater nurseries and transplant them to degraded reef sections, restoring over 500 m²
+                    of reef since 2023.</span>
+                </li>
+                <li>
+                    <span class="dot dot-14"></span>
+                    <span><strong>Plastic-Free Island Policy:</strong> Zero single-use plastics on the entire
+                    property. All guest amenities use glass, bamboo, or compostable alternatives.</span>
+                </li>
+                <li>
+                    <span class="dot dot-14"></span>
+                    <span><strong>Marine "No-Take" Zone:</strong> The 2 km radius around the island is designated
+                    a protected no-fishing, no-anchoring zone, allowing fish populations to recover naturally.</span>
+                </li>
+                <li>
+                    <span class="dot dot-14"></span>
+                    <span><strong>Guest Conservation Dives:</strong> Guests can join weekly reef monitoring dives
+                    led by our resident marine biologist, turning tourism into active conservation.</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+
+    <!-- =====================================================================
+         SDG 2 — GOAL 12: RESPONSIBLE CONSUMPTION & PRODUCTION
+         Photo on the RIGHT (flip class), grey background
+         ===================================================================== -->
+    <section class="sdg-section flip grey-bg" id="goal12">
+
+        <!-- Photo half (will appear on the right due to flex-direction: row-reverse) -->
+        <div class="sdg-photo">
+            <img
+                src="img/SDG12.jpg"
+                alt="Fresh local produce and sustainable food"
+            >
+            <div class="sdg-badge badge-12">SDG Goal 12</div>
+        </div>
+
+        <!-- Text half (will appear on the left) -->
+        <div class="sdg-text">
+            <p class="sdg-goal-label">SDG Goal 12 &nbsp;·&nbsp; Responsible Consumption & Production</p>
+            <h2>Wasting Nothing,<br>Sourcing Wisely</h2>
+            <div class="sdg-accent-bar bar-12"></div>
+            <p class="sdg-why">Why this matters at The Riviera</p>
+            <p class="sdg-desc">
+                Supplying a private island resort in the Andamans is logistically challenging — every item
+                shipped from the mainland carries a carbon cost. This reality pushes us to be radical about
+                local sourcing and waste reduction. Our goal is simple: everything that enters the island
+                either came from a nearby community or leaves the island as a resource, never as rubbish.
+            </p>
+
+            <ul class="sdg-initiatives">
+                <li>
+                    <span class="dot dot-12"></span>
+                    <span><strong>Farm-to-Table Sourcing:</strong> All seafood is sourced directly from Port
+                    Blair's licensed fishermen cooperatives. Seasonal vegetables are grown on our island
+                    kitchen garden, supplemented by Andamanese farmers.</span>
+                </li>
+                <li>
+                    <span class="dot dot-12"></span>
+                    <span><strong>On-Site Glass Bottling Plant:</strong> We purify and bottle our own drinking
+                    water in reusable glass bottles, eliminating an estimated 80,000 plastic bottles per year.</span>
+                </li>
+                <li>
+                    <span class="dot dot-12"></span>
+                    <span><strong>100% Organic Waste Composting:</strong> All kitchen and garden waste is
+                    converted into compost through our on-site biodigester, which also feeds back into
+                    our landscaping cycle.</span>
+                </li>
+                <li>
+                    <span class="dot dot-12"></span>
+                    <span><strong>Linen & Amenity Lifecycle:</strong> Towels and linens are replaced only on
+                    guest request. Unused toiletries are donated to local schools and communities in Port Blair.</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+
+    <!-- =====================================================================
+         SDG 3 — GOAL 7: AFFORDABLE & CLEAN ENERGY
+         Photo on the LEFT (no flip), white background
+         ===================================================================== -->
+    <section class="sdg-section" id="goal7">
+
+        <div class="sdg-photo">
+            <img
+                src="https://images.unsplash.com/photo-1509391366360-2e959784a276?q=80&w=2072&auto=format&fit=crop"
+                alt="Solar panels with tropical landscape"
+            >
+            <div class="sdg-badge badge-7">SDG Goal 7</div>
+        </div>
+
+        <div class="sdg-text">
+            <p class="sdg-goal-label">SDG Goal 7 &nbsp;·&nbsp; Affordable & Clean Energy</p>
+            <h2>Powered by<br>Sun & Sea</h2>
+            <div class="sdg-accent-bar bar-7"></div>
+            <p class="sdg-why">Why this matters at The Riviera</p>
+            <p class="sdg-desc">
+                Most islands in the Andamans run on diesel generators — expensive, noisy, and deeply
+                polluting. The Riviera made the decision at construction stage to build differently.
+                By generating our own clean energy and designing our architecture to work with the
+                tropical climate instead of fighting it, we aim to be the first diesel-free luxury resort
+                in the Andaman archipelago.
+            </p>
+
+            <ul class="sdg-initiatives">
+                <li>
+                    <span class="dot dot-7"></span>
+                    <span><strong>Island Solar Microgrid:</strong> A 450 kW rooftop and ground-mounted solar
+                    array powers all guest villas, resort facilities, and our desalination plant, with a
+                    battery bank for overnight and cloudy-day storage.</span>
+                </li>
+                <li>
+                    <span class="dot dot-7"></span>
+                    <span><strong>Passive Cooling Architecture:</strong> All villas are oriented to capture the
+                    prevailing south-west sea breeze. Deep overhanging eaves, high ceilings, and shading
+                    screens dramatically reduce air-conditioning load.</span>
+                </li>
+                <li>
+                    <span class="dot dot-7"></span>
+                    <span><strong>Solar Water Heating:</strong> Vacuum-tube solar collectors provide 100% of
+                    domestic hot water, with zero reliance on electric heaters.</span>
+                </li>
+                <li>
+                    <span class="dot dot-7"></span>
+                    <span><strong>EV Island Buggies:</strong> All on-island transport uses solar-charged
+                    electric vehicles, eliminating exhaust emissions from the island entirely.</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+
+    <!-- =====================================================================
+         SDG 4 — GOAL 8: DECENT WORK & ECONOMIC GROWTH
+         Photo on the RIGHT (flip), grey background
+         ===================================================================== -->
+    <section class="sdg-section flip grey-bg" id="goal8">
+
+        <div class="sdg-photo">
+            <img
+                src="img/SDG8.jpg"
+                alt="Local team training and hospitality work"
+            >
+            <div class="sdg-badge badge-8">SDG Goal 8</div>
+        </div>
+
+        <div class="sdg-text">
+            <p class="sdg-goal-label">SDG Goal 8 &nbsp;·&nbsp; Decent Work & Economic Growth</p>
+            <h2>Empowering<br>Island Communities</h2>
+            <div class="sdg-accent-bar bar-8"></div>
+            <p class="sdg-why">Why this matters at The Riviera</p>
+            <p class="sdg-desc">
+                Sustainable tourism is hollow if the community next door does not benefit. The Andaman
+                Islands have a young, talented population that has historically had limited access to
+                world-class hospitality careers. The Riviera was designed to change this — not through
+                charity, but through genuine employment, fair pay, and professional investment in local people.
+            </p>
+
+            <ul class="sdg-initiatives">
+                <li>
+                    <span class="dot dot-8"></span>
+                    <span><strong>Local-First Hiring Policy:</strong> A minimum of 85% of all positions —
+                    from chefs to guest relations managers — are filled by residents of Port Blair and
+                    the Andaman & Nicobar Islands. No exceptions for mid-level and below.</span>
+                </li>
+                <li>
+                    <span class="dot dot-8"></span>
+                    <span><strong>The Riviera Hospitality Academy:</strong> A 6-month accredited training
+                    programme for local youth, covering culinary arts, front office management, English
+                    communication, and international hospitality standards.</span>
+                </li>
+                <li>
+                    <span class="dot dot-8"></span>
+                    <span><strong>Artisan Partnership Programme:</strong> We commission local woodcarvers,
+                    weavers, and potters to supply resort décor, ensuring traditional crafts generate
+                    sustainable income for island artisans.</span>
+                </li>
+                <li>
+                    <span class="dot dot-8"></span>
+                    <span><strong>Living Wage Standard:</strong> All staff, including seasonal and contracted
+                    workers, are paid a verified living wage — above the national minimum — with full
+                    provident fund and health insurance coverage.</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+
+    <!-- =====================================================================
+         SDG 5 — GOAL 6: CLEAN WATER & SANITATION
+         Photo on the LEFT (no flip), white background
+         ===================================================================== -->
+    <section class="sdg-section" id="goal6">
+
+        <div class="sdg-photo">
+            <img
+                src="img/SDG6.jpg"
+                alt="Clean water and ocean sanitation"
+            >
+            <div class="sdg-badge badge-6">SDG Goal 6</div>
+        </div>
+
+        <div class="sdg-text">
+            <p class="sdg-goal-label">SDG Goal 6 &nbsp;·&nbsp; Clean Water & Sanitation</p>
+            <h2>Pure Water,<br>Protected Reefs</h2>
+            <div class="sdg-accent-bar bar-6"></div>
+            <p class="sdg-why">Why this matters at The Riviera</p>
+            <p class="sdg-desc">
+                Freshwater is the most precious and scarcest resource on a small island. Traditional
+                groundwater extraction causes saltwater intrusion, destroying the island's natural
+                water table forever. Equally critical: any untreated waste that reaches the ocean
+                triggers algal blooms that suffocate coral. At The Riviera, not a single drop of
+                groundwater is extracted, and not a single litre of untreated water leaves the island.
+            </p>
+
+            <ul class="sdg-initiatives">
+                <li>
+                    <span class="dot dot-6"></span>
+                    <span><strong>Solar-Powered Desalination:</strong> Our reverse-osmosis desalination plant,
+                    powered entirely by our solar grid, converts seawater into safe drinking water —
+                    producing 40,000 litres daily with zero impact on the island's groundwater.</span>
+                </li>
+                <li>
+                    <span class="dot dot-6"></span>
+                    <span><strong>Greywater Recycling System:</strong> A dual-pipe system collects water from
+                    all showers, sinks, and laundry, treats it through a bio-filter garden, and reuses it
+                    for 100% of the resort's landscape irrigation.</span>
+                </li>
+                <li>
+                    <span class="dot dot-6"></span>
+                    <span><strong>Zero-Liquid Discharge (ZLD) Plant:</strong> Our advanced sewage treatment
+                    plant processes all wastewater to tertiary standards. Absolutely zero liquid waste
+                    or chemicals are discharged into the surrounding ocean — ever.</span>
+                </li>
+                <li>
+                    <span class="dot dot-6"></span>
+                    <span><strong>Rainwater Harvesting:</strong> Every roof on the island is fitted with
+                    rainwater collection channels feeding into a 200,000-litre underground cistern,
+                    reducing desalination load during the monsoon season by up to 40%.</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+
+    <!-- ===================== PLEDGE SECTION ===================== -->
+    <section class="pledge-section">
+        <!-- Background photo — aerial ocean / island view -->
+        <img
+            class="pledge-bg"
+            src="https://images.unsplash.com/photo-1573843981267-be1999ff37cd?q=80&w=2074&auto=format&fit=crop"
+            alt="Aerial view of private island"
+        >
+
+        <div class="pledge-content">
+            <span class="eyebrow">Our Commitment</span>
+            <h2>Beyond Carbon Neutral<br>by 2030</h2>
+            <p>
+                The Riviera has committed to achieving carbon negativity by 2030 — meaning we will remove
+                more carbon from the atmosphere than we produce. This is not an aspiration. It is a legally
+                binding target embedded in our operating charter, verified annually by an independent
+                environmental auditor. The ocean gave us everything. We intend to give back more.
+            </p>
+        </div>
+    </section>
+
+
+    <!-- ===================== CERTIFICATIONS ===================== -->
+    <section class="cert-section">
+        <h3>Certifications & Memberships</h3>
+        <div class="cert-grid">
+            <div class="cert-item">&#127807; Green Globe Certified</div>
+            <div class="cert-item">&#127758; UN Global Compact Member</div>
+            <div class="cert-item">&#127754; EarthCheck Benchmarked</div>
+            <div class="cert-item">&#127764; Reef-Safe Sunscreen Policy</div>
+            <div class="cert-item">&#9728;&#65039; 100% Solar Committed</div>
+        </div>
+    </section>
+
+
+    <!-- ===================== FOOTER =====================
+         Copied from index.html — identical footer on every page -->
+    <footer class="footer">
+        <div class="container footer-grid">
+            <div class="footer-col logo-col">
+                <div class="logo" style="color:white;">THE RIVIERA</div>
+                <p style="margin-top:15px; opacity:0.6; font-size:0.85rem; max-width:200px; line-height:1.6;">
+                    Where Luxury Meets the Sea. Andaman Islands, India.
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>Menu</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.html#highlights">Experience</a></li>
+                    <li><a href="#">Dining</a></li>
+                    <li><a href="sustainability.html">Sustainability</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Legal</h4>
+                <ul>
+                    <li><a href="#">Terms Of Use</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Connect</h4>
+                <ul>
+                    <li><a href="index.html#contact">Contact Us</a></li>
+                    <li><a href="#">Instagram</a></li>
+                    <li><a href="#">Facebook</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom text-center">
+            <p>© 2026 The Riviera. All rights reserved.</p>
+        </div>
+    </footer>
+
+
+    <script>
+        // ============================================================
+        // sustainability.html — JavaScript
+        //
+        // This page uses a "Scroll Reveal" effect — sections fade in
+        // as the user scrolls down. This is done using the browser's
+        // built-in IntersectionObserver API.
+        //
+        // How IntersectionObserver works:
+        // - You give it a list of elements to "watch"
+        // - It fires a callback when those elements enter/leave the viewport
+        // - We use this to add a CSS class that triggers a fade-in animation
+        // ============================================================
+
+        // ---- 1. Add the starting "invisible" state to all animatable elements ----
+        // We select everything we want to animate on scroll
+        var animateTargets = document.querySelectorAll(
+            '.sdg-section, .stat-item, .intro-section, .cert-item'
+        );
+
+        // Set their starting state via inline style (invisible and shifted down slightly)
+        animateTargets.forEach(function(el) {
+            el.style.opacity    = '0';
+            el.style.transform  = 'translateY(30px)';
+            el.style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+        });
+
+
+        // ---- 2. Create the observer ----
+        // threshold: 0.12 means the callback fires when 12% of the element is visible
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    // Element is in view — make it visible
+                    entry.target.style.opacity   = '1';
+                    entry.target.style.transform = 'translateY(0)';
+
+                    // Stop watching this element once it has appeared
+                    // (we don't want it to disappear again on scroll up)
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.12 });
+
+
+        // ---- 3. Start watching all the targets ----
+        animateTargets.forEach(function(el) {
+            observer.observe(el);
+        });
+
+
+        // ---- 4. Smooth scroll: navbar links that point to #goal sections ----
+        // When user clicks an in-page anchor, scroll smoothly instead of jumping
+        document.querySelectorAll('a[href^="#"]').forEach(function(link) {
+            link.addEventListener('click', function(e) {
+                var targetId = this.getAttribute('href');
+                var target   = document.querySelector(targetId);
+                if (target) {
+                    e.preventDefault();
+                    // scrollIntoView with smooth behaviour
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+    </script>
+
+</body>
+</html>
