@@ -18,7 +18,9 @@
 
         /* NAVBAR */
         .navbar { position: sticky; top: 0; display: flex; justify-content: space-between; align-items: center; padding: 18px 5%; background: #000; color: #fff; z-index: 100; }
-        .logo { font-size: 1.4rem; font-weight: 700; letter-spacing: 3px; }
+        
+        .logo { font-size: 1.5rem; font-weight: 700; letter-spacing: 3px; display: flex; align-items: center; gap: 15px;}
+        .logo-img { height: 35px; width: auto; }
         .nav-links { display: flex; gap: 30px; list-style: none; }
         .nav-links a { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #fff; opacity: 0.8; transition: opacity 0.3s; }
         .nav-links a:hover { opacity: 1; }
@@ -133,7 +135,10 @@
 
     <!-- NAVBAR -->
     <header class="navbar">
-        <div class="logo">THE RIVIERA</div>
+        <div class="logo">
+            <img src="logo.png" alt="Riviera Logo" class="logo-img">
+            THE RIVIERA
+        </div>
         <nav>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>

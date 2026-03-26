@@ -341,7 +341,3 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 }); 
-
-function goBook() {
-    window.location.href = 'book.html';
-}

@@ -466,24 +466,6 @@ ul { list-style: none; }
     flex-grow: 1;
 }
 
-.card-buttons { display: flex; gap: 10px; }
-
-.card-buttons button {
-    flex: 1;
-    padding: 10px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    border: 1px solid #000;
-    transition: all 0.3s;
-    font-family: inherit;
-}
-
-.card-buttons .btn-primary { background: #000; color: #fff; }
-.card-buttons .btn-primary:hover { background: #fff; color: #000; }
-.card-buttons .btn-secondary { background: #fff; color: #000; }
-.card-buttons .btn-secondary:hover { background: #000; color: #fff; }
-
 .carousel-controls {
     display: flex;
     justify-content: center;

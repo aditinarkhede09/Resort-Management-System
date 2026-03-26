@@ -35,7 +35,8 @@
             z-index: 100;
         }
 
-        .logo { font-size: 1.4rem; font-weight: 700; letter-spacing: 3px; }
+        .logo { font-size: 1.5rem; font-weight: 700; letter-spacing: 3px; display: flex; align-items: center; gap: 15px;}
+        .logo-img { height: 35px; width: auto; }
 
         .nav-links { display: flex; gap: 30px; list-style: none; }
 
@@ -424,7 +425,10 @@
 
     <!-- NAVBAR -->
     <header class="navbar">
-        <div class="logo">THE RIVIERA</div>
+        <div class="logo">
+            <img src="logo.png" alt="Riviera Logo" class="logo-img">
+            THE RIVIERA
+        </div>
         <nav>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
