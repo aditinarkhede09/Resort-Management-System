@@ -67,12 +67,8 @@
             z-index: 1000;
         }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: 3px;
-            color: var(--white);
-        }
+        .logo { font-size: 1.5rem; font-weight: 700; letter-spacing: 3px; display: flex; align-items: center; gap: 15px;}
+        .logo-img { height: 35px; width: auto; }
 
         .nav-links { display: flex; gap: 35px; }
 
@@ -955,7 +951,10 @@
 <body>
 
     <header class="navbar">
-        <div class="logo">THE RIVIERA</div>
+        <div class="logo">
+            <img src="img/logo.png" alt="Riviera Logo" class="logo-img">
+            THE RIVIERA
+        </div>
         <nav>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
@@ -1237,7 +1236,7 @@
                     "The island belonged only to us. It was the most beautiful day of our lives —
                     and The Riviera made every single moment feel completely effortless."
                 </blockquote>
-                <cite>— Priya &amp; Arjun, Mumbai · February 2026</cite>
+                <cite>— Jaya &amp; Arjun, Mumbai · February 2026</cite>
             </div>
         </div>
 

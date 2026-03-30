@@ -486,7 +486,7 @@
     <!-- ===================== NAVBAR ===================== -->
     <header class="navbar">
         <div class="logo">
-            <img src="logo.png" alt="Riviera Logo" class="logo-img">
+            <img src="img/logo.png" alt="Riviera Logo" class="logo-img">
             THE RIVIERA
         </div>
         <nav>
@@ -745,7 +745,7 @@
             {
                 id: 5,
                 name: 'Garden Pool Villa',
-                image: 'https://amianaresort.com/wp-content/uploads/2024/06/AmianaNhaTrang_Ocean-Deluxe-Twin-05.jpg',
+                image: 'https://www.dewaphuketresort.com/wp-content/uploads/2023/05/Dewa-Phuket-Hotel8639-Edit-1.jpg',
                 pricePerNight: 25000,
                 description: 'Surrounded by lush tropical gardens. A serene, green escape for a truly private retreat.',
                 beds:    'One queen bed',
@@ -792,7 +792,7 @@
                 // Build the button / status HTML depending on availability
                 var actionHTML = '';
                 if (!available) {
-                    actionHTML = '<span class="fully-booked">&#8856; Fully Booked for Selected Dates</span>';
+                    actionHTML = '<span class="fully-booked">&#8856; Not Available</span>';
                 } else if (selectedRoomId === room.id) {
                     actionHTML = '<button class="select-btn selected" onclick="selectRoom(' + room.id + ')">&#10003; Selected</button>';
                 } else {
