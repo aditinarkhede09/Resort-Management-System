@@ -1,5 +1,5 @@
-# 🌊 The Riviera — Resort Booking System
-### WPL Mini Project | Semester IV
+# The Riviera — Resort Booking System
+### WPL Mini Project | Semester IV | SY COMPS C3 (2025-26) 
 
 **Team Members:**
 - Aditi Narkhede — 16010124200
@@ -8,9 +8,9 @@
 
 ---
 
-## 📁 Project Overview
+## Project Overview
 
-The Riviera is a full-stack resort booking website for a fictional luxury private island resort in the Andaman & Nicobar Islands. It includes a multi-step booking flow, an admin dashboard, and a MySQL database backend — all running locally on XAMPP.
+The Riviera is a full-stack resort booking website for a fictional luxury private island resort in the Andaman & Nicobar Islands. It includes a multi-step booking flow, an admin dashboard, and a MySQL database backend, all running locally on XAMPP.
 
 **Pages included:**
 - `index.html` — Homepage with date picker, guest selector, carousel, FAQ, contact
@@ -21,14 +21,14 @@ The Riviera is a full-stack resort booking website for a fictional luxury privat
 - `login.html` — Admin portal: staff login + database dashboard (Reservations, Guests, Villas)
 
 **Backend PHP files:**
-- `db.php` — Database connection (PDO)
+- `db.php` — Database connection
 - `get_availability.php` — Checks which villas are available for selected dates
 - `save_booking.php` — Inserts guest and reservation into the database
 - `admin_login.php` — Authenticates staff and returns all table data
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -40,14 +40,14 @@ The Riviera is a full-stack resort booking website for a fictional luxury privat
 
 ---
 
-## ⚙️ How to Run the Project (XAMPP Setup)
+## How to Run the Project (XAMPP Setup)
 
-Follow these steps carefully. The project won't work by just opening `index.html` in a browser directly — it needs a local server because of the PHP files.
+The project needs a local server because of the PHP files.
 
 ### Step 1 — Install XAMPP
 
 - Download XAMPP from [https://www.apachefriends.org](https://www.apachefriends.org)
-- Install it (default settings are fine)
+- Install it
 - Open the **XAMPP Control Panel**
 - Start **Apache** and **MySQL** — both status lights should turn green
 
@@ -74,13 +74,8 @@ htdocs/
     ├── save_booking.php
     ├── admin_login.php
     ├── script.js
-    ├── style.css
-    └── img/
-        ├── logo.png
-        └── video.mp4
+    └── style.css
 ```
-
-> **Note:** The `img/` folder with `logo.png` and `video.mp4` is not included in this repo (the video is too large). You'll need to add your own or the logo/video just won't display — the rest of the site will still work fine.
 
 ### Step 3 — Create the Database
 
@@ -95,65 +90,6 @@ htdocs/
 - Click **"Choose File"** and select the `riviera_db.sql` file from this project
 - Click **"Go"** at the bottom
 - You should see a green success message — the tables (`Admin`, `Guest`, `Villa`, `Reservation`) will now be created and pre-populated
-
-> **If you don't have the `.sql` file**, create the tables manually using the SQL below.
-
-<details>
-<summary>📋 Click to expand — Manual SQL Setup</summary>
-
-```sql
-CREATE DATABASE IF NOT EXISTS riviera_db;
-USE riviera_db;
-
-CREATE TABLE Villa (
-    villa_id      INT AUTO_INCREMENT PRIMARY KEY,
-    villa_name    VARCHAR(100) NOT NULL,
-    base_price    DECIMAL(10, 2) NOT NULL,
-    total_units   INT DEFAULT 1,
-    max_adults    INT DEFAULT 2,
-    max_children  INT DEFAULT 1
-);
-
-CREATE TABLE Guest (
-    user_id       INT AUTO_INCREMENT PRIMARY KEY,
-    first_name    VARCHAR(50) NOT NULL,
-    last_name     VARCHAR(50) NOT NULL,
-    email         VARCHAR(100) UNIQUE NOT NULL,
-    phone_number  VARCHAR(15)
-);
-
-CREATE TABLE Reservation (
-    reservation_id  INT AUTO_INCREMENT PRIMARY KEY,
-    user_id         INT NOT NULL,
-    villa_id        INT NOT NULL,
-    check_in        DATE NOT NULL,
-    check_out       DATE NOT NULL,
-    adults_count    INT DEFAULT 1,
-    children_count  INT DEFAULT 0,
-    total_cost      DECIMAL(10, 2),
-    FOREIGN KEY (user_id)  REFERENCES Guest(user_id),
-    FOREIGN KEY (villa_id) REFERENCES Villa(villa_id)
-);
-
-CREATE TABLE Admin (
-    admin_id       INT AUTO_INCREMENT PRIMARY KEY,
-    employee_code  VARCHAR(20) UNIQUE NOT NULL,
-    password       VARCHAR(255) NOT NULL
-);
-
--- Insert the 5 villas
-INSERT INTO Villa (villa_name, base_price, total_units, max_adults, max_children) VALUES
-('Panoramic Ocean-View Pool Villa', 45000.00, 3, 2, 1),
-('Premier Ocean-View Pool Villa',   38000.00, 4, 2, 2),
-('Oceanfront Pool Villa',           55000.00, 2, 2, 1),
-('Family Pool Villa',               30000.00, 3, 3, 2),
-('Garden Pool Villa',               25000.00, 5, 2, 0);
-
--- Insert a default admin account (password: admin123)
-INSERT INTO Admin (employee_code, password) VALUES ('RVR001', 'admin123');
-```
-
-</details>
 
 ### Step 5 — Check `db.php` Settings
 
@@ -172,21 +108,21 @@ If you've set a custom MySQL password in XAMPP, enter it in the `$password` fiel
 
 - In your browser, go to: `http://localhost/riviera/index.html`
 - The homepage should load with the video background, booking bar, and all sections
-- Try the full booking flow: pick dates → select a villa → add amenities → fill in details → pay
+- Try the full booking flow: pick dates - select a villa - add amenities - fill in details - pay
 
 ---
 
-## 🔐 Admin Login
+## Admin Login
 
 - Go to `http://localhost/riviera/login.html`
 - Use the credentials you inserted into the Admin table:
-  - **Employee Code:** `RVR001`
-  - **Password:** `admin123`
+  - **Employee Code:** `RVRF001`
+  - **Password:** `Riviera@Front1`
 - After logging in, the page will scroll down and show all three database tables live
 
 ---
 
-## 🗂️ Database Schema
+## Database Schema
 
 ```
 riviera_db
@@ -202,7 +138,7 @@ riviera_db
 
 ---
 
-## 🔄 Booking Flow (How It Works End to End)
+## Booking Flow (How It Works End to End)
 
 ```
 index.html         →  User picks dates + guests, clicks BOOK A STAY
@@ -222,31 +158,30 @@ All data between pages is stored in `sessionStorage`. On successful payment, `se
 
 ---
 
-## ✅ Features Implemented
+## Features Implemented
 
 - **Live availability checking** from MySQL (no hardcoded booked dates)
 - **Dynamic pricing** — prices pulled from the Villa table in the DB
 - **Regex form validation** on the details and payment pages (email, phone, card number, expiry, CVV)
-- **Duplicate guest handling** — if the same email books again, a new Guest row is NOT created; existing `user_id` is reused
 - **Double-booking prevention** — availability is re-checked on the server at payment time before inserting the reservation
 - **Admin dashboard** — staff can log in and view all three tables live
 - **Sticky bill panel** — the cost summary updates in real time as amenities are selected
 - **Responsive layout** — collapses to single column on mobile
 - **Infinite carousel** on the homepage for villa photos
 - **FAQ accordion** with smooth open/close animation
-
+- **Sessions** PHP sessions maintain booking state across browser back/forward navigation 
+- **Cookies** Remember returning visitor preferences using cookies with proper consent management
 ---
 
-## ⚠️ Known Limitations / Notes
+## Known Limitations / Notes
 
 - The card payment is **simulated** — no real payment gateway is connected. The card fields are validated for format only.
-- Passwords in the Admin table are stored as **plain text** in this version. In a production system, `password_hash()` and `password_verify()` would be used instead (the code in `admin_login.php` has the `password_verify()` check ready to swap in).
 - The site requires **XAMPP to be running** — opening HTML files directly from the file system will cause the PHP fetches to fail (the villas will still display but availability won't load from the DB).
 - The `video.mp4` and `logo.png` assets are **not included** in this repository due to file size. The site still works without them — the hero section will just have a black background.
 
 ---
 
-## 🧪 Testing the Booking Flow
+## Testing the Booking Flow
 
 1. Start XAMPP, open `http://localhost/riviera/index.html`
 2. Pick any future dates (at least 1 night apart)
@@ -258,7 +193,7 @@ All data between pages is stored in `sessionStorage`. On successful payment, `se
 8. Fill in the details form (try leaving fields blank to test validation)
 9. On the payment page, use a test card like `4111 1111 1111 1111`, any future expiry, any 3-digit CVV
 10. Click **Pay Now** — the booking gets saved to the DB and a booking reference is shown
-11. Log into `login.html` with `RVR001` / `admin123` to see your reservation in the Reservations table
+11. Log into `login.html` with `RVRF001` / `Riviera@Front1` to see your reservation in the Reservations table
 
 ---
 
