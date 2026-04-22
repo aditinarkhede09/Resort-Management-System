@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.setItem('children', children);
         sessionStorage.setItem('promo',    document.getElementById('promo-input').value);
 
-        window.location.href = 'book.html';
+        window.location.href = 'book.php';
     });
 
 

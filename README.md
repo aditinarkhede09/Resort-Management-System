@@ -15,4 +15,4 @@ This is the WPL Mini Project by: -
 Open index.html in your browser
 
 ## Notes
-All images used are present in 'img' folder stored locally (including video and logo). Download separately if needed.
+Video file is not included. Download separately if needed.

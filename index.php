@@ -1,3 +1,49 @@
+<?php
+// ============================================================
+// index.php — Homepage (was index.html)
+//
+// CHANGES FROM index.html:
+//   1. Added require for session_manager.php and cookie_handler.php
+//   2. PHP reads saved session data (dates, guests) to pass to JS
+//      so the booking bar is pre-filled when user comes back
+//   3. PHP reads preference cookies for the same purpose
+//   4. Cookie consent popup added at bottom of page (hidden by CSS)
+//   5. JS updated to save booking data to PHP session via fetch
+//      in addition to sessionStorage (so back-nav restores data)
+//   6. Cookie consent JS: show popup if "pending", send choice to server
+// ============================================================
+
+require 'session_manager.php';   // Starts session, provides helpers
+require 'cookie_handler.php';    // Provides cookie helpers
+
+// ---- Read saved booking data from session (for restoring state) ----
+// These are set when user clicks "Book a Stay" and when they go back
+$savedCheckIn  = readBookingData('checkIn',  '');
+$savedCheckOut = readBookingData('checkOut', '');
+$savedAdults   = readBookingData('adults',   2);
+$savedChildren = readBookingData('children', 0);
+
+// ---- If no session data, try cookies (returning visitor) ----
+$cookieConsent = getCookieConsent();  // "yes", "no", or "pending"
+$prefs = getPreferenceCookies();      // saved dates/guests from last visit
+
+// Use cookie data only if consent was given and no session data exists
+if ($cookieConsent === 'yes') {
+    if (!$savedCheckIn  && $prefs['checkIn'])  $savedCheckIn  = $prefs['checkIn'];
+    if (!$savedCheckOut && $prefs['checkOut']) $savedCheckOut = $prefs['checkOut'];
+    if ($savedAdults   === 2 && $prefs['adults'])   $savedAdults   = $prefs['adults'];
+    if ($savedChildren === 0 && $prefs['children']) $savedChildren = $prefs['children'];
+}
+
+// Safely encode for JS (prevents XSS when echoing into JS)
+$jsCheckIn  = json_encode($savedCheckIn);
+$jsCheckOut = json_encode($savedCheckOut);
+$jsAdults   = intval($savedAdults);
+$jsChildren = intval($savedChildren);
+
+// Should we show the cookie popup? Only if the user hasn't decided yet
+$showCookiePopup = ($cookieConsent === 'pending') ? 'true' : 'false';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +52,103 @@
     <title>The Riviera | Andaman Luxury Resort</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* =====================================================
+           Cookie Consent Popup — matches The Riviera aesthetic
+           (Black & white, Montserrat, minimal)
+           NEW: Added only for cookie functionality
+           ===================================================== */
+
+        .cookie-banner {
+            /* Fixed at bottom of screen, full width */
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #000;
+            color: #fff;
+            padding: 20px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+            z-index: 9999;
+            border-top: 2px solid #333;
+
+            /* Hidden by default — JS shows it if consent is pending */
+            display: none;
+        }
+
+        /* Make it visible when JS adds this class */
+        .cookie-banner.visible { display: flex; }
+
+        .cookie-text {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .cookie-text h4 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+
+        .cookie-text p {
+            font-size: 0.78rem;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        .cookie-text a {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        /* Buttons container */
+        .cookie-buttons {
+            display: flex;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        /* Accept button — white on black */
+        .cookie-accept-btn {
+            background: #fff;
+            color: #000;
+            border: 1px solid #fff;
+            padding: 10px 24px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .cookie-accept-btn:hover { background: #e0e0e0; border-color: #e0e0e0; }
+
+        /* Reject button — transparent outline */
+        .cookie-reject-btn {
+            background: transparent;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 10px 24px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .cookie-reject-btn:hover { border-color: #fff; }
+    </style>
 </head>
 <body>
 
@@ -16,7 +159,7 @@
         </div>
         <nav>
             <ul class="nav-links">
-                <li><a href="index.html">Home</a></li>
+                <li><a href="index.php">Home</a></li>
                 <li><a href="events.html" class="active-link">Events</a></li>
                 <li><a href="dining.html">Dining</a></li>
                 <li><a href="sustainability.html">Sustainability</a></li>
@@ -123,7 +266,7 @@
                 <input type="text" class="promo-input" placeholder="Promo Code" id="promo-input">
             </div>
 
-            <a href="#" class="search-btn" id="book-btn">BOOK A STAY</a>
+            <a href="book.php" class="search-btn" id="book-btn">BOOK A STAY</a>
         </div>
     </section>
 
@@ -260,7 +403,7 @@
             <div class="footer-col">
                 <h4>Menu</h4>
                 <ul>
-                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.php">Home</a></li>
                     <li><a href="events.html">Events</a></li>
                     <li><a href="dining.html">Dining</a></li>
                     <li><a href="sustainability.html">Sustainability</a></li>
@@ -288,6 +431,185 @@
         </div>
     </footer>
 
+
+    <!-- =====================================================
+         COOKIE CONSENT BANNER (NEW)
+         Shown at the bottom of the page if consent is pending.
+         Matches the black & white Riviera aesthetic.
+         ===================================================== -->
+    <div class="cookie-banner" id="cookie-banner">
+        <div class="cookie-text">
+            <h4>Cookie Preferences</h4>
+            <p>
+                We use cookies to remember your booking preferences and enhance your experience.
+                <!-- Preference cookies are only set with consent -->
+            </p>
+        </div>
+        <div class="cookie-buttons">
+            <button class="cookie-reject-btn" id="cookie-reject-btn">Reject</button>
+            <button class="cookie-accept-btn" id="cookie-accept-btn">Accept All</button>
+        </div>
+    </div>
+
+
     <script src="script.js"></script>
+
+    <script>
+        // ============================================================
+        // CHANGES TO script.js LOGIC (inline here to avoid editing script.js):
+        //
+        // NEW ADDITIONS:
+        //   1. Restore saved dates and guest counts from PHP session
+        //      (PHP echoes them as JS variables at the top)
+        //   2. When "BOOK A STAY" is clicked, save to PHP session
+        //      via a fetch() POST to save_session.php BEFORE navigating
+        //   3. Cookie popup: show if pending, send Accept/Reject to server
+        // ============================================================
+
+
+        // ---- PHP INJECTED DATA (restored from session / cookies) ----
+        // PHP echoes these values into the page — safe because we json_encode'd them
+        var restoredCheckIn  = <?= $jsCheckIn  ?>;   // e.g. "2026-05-01T00:00:00.000Z" or ""
+        var restoredCheckOut = <?= $jsCheckOut ?>;   // e.g. "2026-05-05T00:00:00.000Z" or ""
+        var restoredAdults   = <?= $jsAdults   ?>;   // e.g. 2
+        var restoredChildren = <?= $jsChildren ?>;   // e.g. 0
+        var showCookiePopup  = <?= $showCookiePopup ?>;  // true or false
+
+
+        // ============================================================
+        // COOKIE BANNER LOGIC
+        // ============================================================
+        window.addEventListener('DOMContentLoaded', function() {
+
+            // Show the banner if PHP says consent is still pending
+            if (showCookiePopup) {
+                document.getElementById('cookie-banner').classList.add('visible');
+            }
+
+            // ---- Accept button ----
+            document.getElementById('cookie-accept-btn').addEventListener('click', function() {
+                sendConsentChoice('yes');
+            });
+
+            // ---- Reject button ----
+            document.getElementById('cookie-reject-btn').addEventListener('click', function() {
+                sendConsentChoice('no');
+            });
+        });
+
+        // Sends the consent choice to cookie_handler.php and hides the banner
+        function sendConsentChoice(choice) {
+            // Send to server via fetch so the PHP cookie is set
+            fetch('cookie_handler.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'  // triggers the AJAX block in cookie_handler.php
+                },
+                body: JSON.stringify({ consent: choice })
+            })
+            .then(function() {
+                // Hide the banner regardless of response
+                document.getElementById('cookie-banner').classList.remove('visible');
+            })
+            .catch(function() {
+                // Even on network error, hide the banner
+                document.getElementById('cookie-banner').classList.remove('visible');
+            });
+        }
+
+
+        // ============================================================
+        // RESTORE DATES IN CALENDAR (NEW)
+        //
+        // The original script.js calendar runs after DOMContentLoaded.
+        // We hook in AFTER script.js runs to restore dates.
+        // We use a small delay to ensure script.js has run first.
+        // ============================================================
+        window.addEventListener('load', function() {
+            // Only restore if we actually have saved dates
+            if (!restoredCheckIn || !restoredCheckOut) return;
+
+            try {
+                var d1 = new Date(restoredCheckIn);
+                var d2 = new Date(restoredCheckOut);
+
+                // Make sure dates are valid and in the future
+                var now = new Date();
+                now.setHours(0, 0, 0, 0);
+                if (isNaN(d1) || isNaN(d2) || d1 < now) return;
+
+                // script.js exposes selectedDates via the global scope.
+                // We directly set it here and trigger a display update.
+                // Note: selectedDates is declared in script.js with var (not let/const)
+                // so it's accessible globally.
+
+                // Update the date display bar
+                var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                var nights = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+                var displayText = months[d1.getMonth()] + ' ' + d1.getDate() +
+                    ' — ' + months[d2.getMonth()] + ' ' + d2.getDate() +
+                    ', ' + d2.getFullYear() + ' (' + nights + ' nights)';
+
+                document.getElementById('main-date-display').innerText = displayText;
+
+                // Also restore to sessionStorage so script.js book-btn click works
+                sessionStorage.setItem('checkIn',  d1.toISOString());
+                sessionStorage.setItem('checkOut', d2.toISOString());
+
+            } catch(e) {
+                // Silently ignore date restore errors
+            }
+
+            // Restore guest counts
+            if (restoredAdults > 0) {
+                var guestText = '1 Room — ' + restoredAdults + ' Adult' + (restoredAdults > 1 ? 's' : '');
+                if (restoredChildren > 0) guestText += ', ' + restoredChildren + ' Children';
+                document.getElementById('main-guest-display').innerText = guestText;
+
+                // Also restore to sessionStorage
+                sessionStorage.setItem('adults',   restoredAdults);
+                sessionStorage.setItem('children', restoredChildren);
+            }
+        });
+
+
+        // ============================================================
+        // OVERRIDE BOOK BUTTON to also save to PHP session
+        //
+        // The original book-btn listener is in script.js.
+        // We ADD another listener here that fires AFTER it.
+        // This saves to the PHP session so back-navigation restores state.
+        // ============================================================
+        window.addEventListener('DOMContentLoaded', function() {
+
+            document.getElementById('book-btn').addEventListener('click', function() {
+                // Read the current sessionStorage values (set by script.js)
+                var checkIn  = sessionStorage.getItem('checkIn');
+                var checkOut = sessionStorage.getItem('checkOut');
+                var adults   = sessionStorage.getItem('adults')   || 2;
+                var children = sessionStorage.getItem('children') || 0;
+
+                // Save to PHP session via fetch
+                // We use keepalive:true so the request completes even as the page navigates
+                fetch('save_session.php', {
+                    method:    'POST',
+                    headers:   { 'Content-Type': 'application/json' },
+                    keepalive: true,
+                    body: JSON.stringify({
+                        action:   'saveBooking',
+                        checkIn:  checkIn,
+                        checkOut: checkOut,
+                        adults:   parseInt(adults),
+                        children: parseInt(children)
+                    })
+                });
+                // Note: we don't await this — navigation happens in script.js
+                // The keepalive flag ensures the request still completes
+            });
+        });
+
+    </script>
+
 </body>
 </html>
