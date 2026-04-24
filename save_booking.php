@@ -72,14 +72,35 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
-// Convert the ISO date strings from JS to MySQL DATE format (YYYY-MM-DD)
-// e.g. "2026-04-01T00:00:00.000Z" → "2026-04-01"
-// strtotime() understands many date formats. date('Y-m-d') formats to MySQL.
-$check_in_date  = date('Y-m-d', strtotime($check_in));
-$check_out_date = date('Y-m-d', strtotime($check_out));
+// Convert date strings from JS to MySQL DATE format (YYYY-MM-DD)
+//
+// FIX: JavaScript's toISOString() returns UTC time, e.g. "2026-05-18T00:00:00.000Z"
+// For users in UTC+ timezones (like India, UTC+5:30), midnight local time becomes
+// the previous day in UTC — so "18 May" becomes "2026-05-17T18:30:00.000Z".
+// Using strtotime() on that full ISO string causes a 1-day-behind bug.
+//
+// SOLUTION: If the string contains a 'T', extract only the date portion before it.
+// This discards the time/timezone entirely and uses the date as the user selected it.
+// If the string is already "YYYY-MM-DD" (plain format), it is used as-is.
+function extractDate($dateStr) {
+    $dateStr = trim($dateStr);
+    // If it's an ISO 8601 string like "2026-05-18T18:30:00.000Z", take only "2026-05-18"
+    if (strpos($dateStr, 'T') !== false) {
+        $dateStr = substr($dateStr, 0, strpos($dateStr, 'T'));
+    }
+    // Validate the resulting string is a real date in YYYY-MM-DD format
+    $d = DateTime::createFromFormat('Y-m-d', $dateStr);
+    if ($d && $d->format('Y-m-d') === $dateStr) {
+        return $dateStr;
+    }
+    return null;
+}
+
+$check_in_date  = extractDate($check_in);
+$check_out_date = extractDate($check_out);
 
 // Sanity check on dates
-if ($check_in_date === '1970-01-01' || $check_out_date === '1970-01-01') {
+if (!$check_in_date || !$check_out_date) {
     echo json_encode(['success' => false, 'error' => 'Invalid date format received.']);
     exit;
 }

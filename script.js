@@ -261,8 +261,18 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault(); 
 
         if (selectedDates.length === 2) {
-            sessionStorage.setItem('checkIn',  selectedDates[0].toISOString());
-            sessionStorage.setItem('checkOut', selectedDates[1].toISOString());
+            // FIX: Use local date formatting instead of toISOString().
+            // toISOString() converts to UTC, which shifts the date backward for UTC+
+            // timezones (e.g. India UTC+5:30 causes a 1-day-behind bug in the DB).
+            // We store as "YYYY-MM-DD" using the local date the user actually selected.
+            function toLocalDateStr(d) {
+                var y  = d.getFullYear();
+                var mo = String(d.getMonth() + 1).padStart(2, '0');
+                var dd = String(d.getDate()).padStart(2, '0');
+                return y + '-' + mo + '-' + dd;
+            }
+            sessionStorage.setItem('checkIn',  toLocalDateStr(selectedDates[0]));
+            sessionStorage.setItem('checkOut', toLocalDateStr(selectedDates[1]));
         }
         sessionStorage.setItem('adults',   adults);
         sessionStorage.setItem('children', children);
